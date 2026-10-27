@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GauriKit 2.0 — Child Safety & Critical Thinking Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- TOP NAVIGATION BAR -->
+    <header class="top-nav">
+      <div class="brand" onclick="GauriEngine.navigate('hub')" role="button" tabindex="0" aria-label="GauriKit Home">
+        <div class="mascot-badge" onclick="GauriEngine.celebrateMascot(event, this)" title="Gauri the Elephant — Click to say hi!">
+          <svg class="gauri-elephant-logo gauri-badge-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gauri the Elephant">
+            <defs>
+              <linearGradient id="gauriSkin_b" x1="20%" y1="10%" x2="80%" y2="90%">
+                <stop offset="0%" stop-color="#8DB3A7"/>
+                <stop offset="45%" stop-color="#6B9287"/>
+                <stop offset="100%" stop-color="#4B7266"/>
+              </linearGradient>
+              <linearGradient id="gauriEar_b" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FDE8E3"/>
+                <stop offset="60%" stop-color="#F7C8BE"/>
+                <stop offset="100%" stop-color="#EAA698"/>
+              </linearGradient>
+              <linearGradient id="gauriMarigold_b" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FCD34D"/>
+                <stop offset="50%" stop-color="#F59E0B"/>
+                <stop offset="100%" stop-color="#D97706"/>
+              </linearGradient>
+              <filter id="gauriDepth_b" x="-15%" y="-15%" width="130%" height="130%">
+                <feDropShadow dx="0" dy="1.5" stdDeviation="1.2" flood-color="#16302A" flood-opacity="0.25"/>
+              </filter>
+            </defs>
+            <g class="gauri-elephant-group">
+              <path class="gauri-body" d="M 28 86 C 28 72 38 68 50 68 C 62 68 72 72 72 86 C 72 92 28 92 28 86 Z" fill="url(#gauriSkin_b)" stroke="#395A50" stroke-width="1.2"/>
+              <g class="gauri-ear gauri-ear-left">
+                <path d="M 37 36 C 18 34 8 48 10 63 C 12 74 24 77 36 68 Z" fill="url(#gauriSkin_b)" stroke="#395A50" stroke-width="1.2"/>
+                <path d="M 34 41 C 21 40 15 49 17 60 C 19 68 26 69 33 63 Z" fill="url(#gauriEar_b)" opacity="0.9"/>
+              </g>
+              <g class="gauri-ear gauri-ear-right">
+                <path d="M 63 36 C 82 34 92 48 90 63 C 88 74 76 77 64 68 Z" fill="url(#gauriSkin_b)" stroke="#395A50" stroke-width="1.2"/>
+                <path d="M 66 41 C 79 40 85 49 83 60 C 81 68 74 69 67 63 Z" fill="url(#gauriEar_b)" opacity="0.9"/>
+              </g>
+              <ellipse class="gauri-head" cx="50" cy="51" rx="25" ry="22.5" fill="url(#gauriSkin_b)" stroke="#395A50" stroke-width="1.4" filter="url(#gauriDepth_b)"/>
+              <ellipse class="gauri-blush gauri-blush-left" cx="34" cy="57" rx="4.5" ry="2.8" fill="#F472B6" opacity="0.45"/>
+              <ellipse class="gauri-blush gauri-blush-right" cx="66" cy="57" rx="4.5" ry="2.8" fill="#F472B6" opacity="0.45"/>
+              <path class="gauri-tusk gauri-tusk-l" d="M 42 60 C 40 64 38 68 40 71 C 42 71 43 67 44 62 Z" fill="#FFFDF8" stroke="#D1D5DB" stroke-width="0.8"/>
+              <path class="gauri-tusk gauri-tusk-r" d="M 58 60 C 60 64 62 68 60 71 C 58 71 57 67 56 62 Z" fill="#FFFDF8" stroke="#D1D5DB" stroke-width="0.8"/>
+              <g class="gauri-eye gauri-eye-left">
+                <ellipse cx="38" cy="47" rx="4" ry="4.5" fill="#16302A"/>
+                <circle cx="36.6" cy="45.3" r="1.6" fill="#FFFFFF"/>
+                <circle cx="39.6" cy="48.3" r="0.75" fill="#FFFFFF"/>
+                <path d="M 33.5 43.5 C 36 41.5 40 41.5 42.5 43.5" stroke="#16302A" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+              </g>
+              <g class="gauri-eye gauri-eye-right">
+                <ellipse cx="62" cy="47" rx="4" ry="4.5" fill="#16302A"/>
+                <circle cx="60.6" cy="45.3" r="1.6" fill="#FFFFFF"/>
+                <circle cx="63.6" cy="48.3" r="0.75" fill="#FFFFFF"/>
+                <path d="M 57.5 43.5 C 60 41.5 64 41.5 66.5 43.5" stroke="#16302A" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+              </g>
+              <g class="gauri-trunk">
+                <path class="gauri-trunk-stroke" d="M 46 53 C 47 61 48 69 51 73 C 54.5 77 60 77 62 72 C 63 68 59 65 55.5 67 C 53.5 68.5 54 71.5 56 72" stroke="url(#gauriSkin_b)" stroke-width="6.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M 46 53 C 47 61 48 69 51 73 C 54.5 77 60 77 62 72 C 63 68 59 65 55.5 67 C 53.5 68.5 54 71.5 56 72" stroke="#395A50" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <path d="M 47.5 57 Q 50 59 52.5 57" stroke="#395A50" stroke-width="0.9" stroke-linecap="round" fill="none" opacity="0.6"/>
+                <path d="M 48 61 Q 50.5 63 53 61" stroke="#395A50" stroke-width="0.9" stroke-linecap="round" fill="none" opacity="0.6"/>
+              </g>
+              <g class="gauri-emblem">
+                <circle cx="50" cy="42" r="1.5" fill="#C1685A"/>
+                <g class="gauri-flower" transform="translate(50, 31)">
+                  <circle cx="0" cy="-3.6" r="2.6" fill="url(#gauriMarigold_b)"/>
+                  <circle cx="3.4" cy="-1.1" r="2.6" fill="url(#gauriMarigold_b)"/>
+                  <circle cx="2.1" cy="3" r="2.6" fill="url(#gauriMarigold_b)"/>
+                  <circle cx="-2.1" cy="3" r="2.6" fill="url(#gauriMarigold_b)"/>
+                  <circle cx="-3.4" cy="-1.1" r="2.6" fill="url(#gauriMarigold_b)"/>
+                  <circle cx="0" cy="0" r="2" fill="#FEF08A" stroke="#E2963A" stroke-width="0.5"/>
+                </g>
+              </g>
+              <g class="gauri-sparkles">
+                <path class="gauri-sparkle-star gauri-sparkle-s1" d="M 65 62 Q 67 59 69 62 Q 67 65 65 62 Z" fill="#FBBF24"/>
+                <circle class="gauri-sparkle-dot" cx="71" cy="58" r="1.1" fill="#F59E0B"/>
+                <path class="gauri-sparkle-star gauri-sparkle-s2" d="M 59 59 Q 60 57 61 59 Q 60 61 59 59 Z" fill="#FEF08A"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">GauriKit</span>
+          <span class="brand-subtitle" data-i18n="tagline">Safe Choices, Smart Minds</span>
+        </div>
+      </div>
+
+      <div class="nav-controls">
+        <!-- Bilingual Toggle -->
+        <button id="lang-toggle-btn" class="pill-btn lang-btn" onclick="GauriEngine.toggleLanguage()" aria-label="Toggle Language">
+          <span class="lang-icon">🌐</span>
+          <span id="lang-label">हिन्दी</span>
+        </button>
+
+        <!-- Audio Toggle -->
+        <button id="audio-toggle-btn" class="icon-btn" onclick="GauriEngine.toggleAudio()" title="Sound On/Off" aria-label="Sound Toggle">
+          <span id="audio-icon">🔊</span>
+        </button>
+
+        <!-- Researcher Dashboard Button -->
+        <button id="dashboard-nav-btn" class="pill-btn secondary-btn" onclick="GauriEngine.openDashboard()">
+          <span>📊</span>
+          <span data-i18n="navDashboard">Researcher Hub</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN VIEWPORT CONTAINER -->
+    <main id="main-content" class="main-viewport">
+      
+      <!-- SCREEN 1: WELCOME & PARTICIPANT SETUP -->
+      <section id="screen-welcome" class="screen active">
+        <div class="welcome-card card-pop">
+          <div class="welcome-hero-badge">
+            <div class="hero-mascot-ring" onclick="GauriEngine.celebrateMascot(event, this)" role="button" tabindex="0" title="Gauri the Elephant — Click to say hi!">
+              <svg class="gauri-elephant-logo gauri-hero-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gauri the Elephant">
+                <defs>
+                  <linearGradient id="gauriSkin_h" x1="20%" y1="10%" x2="80%" y2="90%">
+                    <stop offset="0%" stop-color="#8DB3A7"/>
+                    <stop offset="45%" stop-color="#6B9287"/>
+                    <stop offset="100%" stop-color="#4B7266"/>
+                  </linearGradient>
+                  <linearGradient id="gauriEar_h" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FDE8E3"/>
+                    <stop offset="60%" stop-color="#F7C8BE"/>
+                    <stop offset="100%" stop-color="#EAA698"/>
+                  </linearGradient>
+                  <linearGradient id="gauriMarigold_h" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#FCD34D"/>
+                    <stop offset="50%" stop-color="#F59E0B"/>
+                    <stop offset="100%" stop-color="#D97706"/>
+                  </linearGradient>
+                  <filter id="gauriDepth_h" x="-15%" y="-15%" width="130%" height="130%">
+                    <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-color="#16302A" flood-opacity="0.22"/>
+                  </filter>
+                </defs>
+                <g class="gauri-elephant-group">
+                  <path class="gauri-body" d="M 28 86 C 28 72 38 68 50 68 C 62 68 72 72 72 86 C 72 92 28 92 28 86 Z" fill="url(#gauriSkin_h)" stroke="#395A50" stroke-width="1.2"/>
+                  <g class="gauri-ear gauri-ear-left">
+                    <path d="M 37 36 C 18 34 8 48 10 63 C 12 74 24 77 36 68 Z" fill="url(#gauriSkin_h)" stroke="#395A50" stroke-width="1.2"/>
+                    <path d="M 34 41 C 21 40 15 49 17 60 C 19 68 26 69 33 63 Z" fill="url(#gauriEar_h)" opacity="0.9"/>
+                  </g>
+                  <g class="gauri-ear gauri-ear-right">
+                    <path d="M 63 36 C 82 34 92 48 90 63 C 88 74 76 77 64 68 Z" fill="url(#gauriSkin_h)" stroke="#395A50" stroke-width="1.2"/>
+                    <path d="M 66 41 C 79 40 85 49 83 60 C 81 68 74 69 67 63 Z" fill="url(#gauriEar_h)" opacity="0.9"/>
+                  </g>
+                  <ellipse class="gauri-head" cx="50" cy="51" rx="25" ry="22.5" fill="url(#gauriSkin_h)" stroke="#395A50" stroke-width="1.4" filter="url(#gauriDepth_h)"/>
+                  <ellipse class="gauri-blush gauri-blush-left" cx="34" cy="57" rx="4.5" ry="2.8" fill="#F472B6" opacity="0.45"/>
+                  <ellipse class="gauri-blush gauri-blush-right" cx="66" cy="57" rx="4.5" ry="2.8" fill="#F472B6" opacity="0.45"/>
+                  <path class="gauri-tusk gauri-tusk-l" d="M 42 60 C 40 64 38 68 40 71 C 42 71 43 67 44 62 Z" fill="#FFFDF8" stroke="#D1D5DB" stroke-width="0.8"/>
+                  <path class="gauri-tusk gauri-tusk-r" d="M 58 60 C 60 64 62 68 60 71 C 58 71 57 67 56 62 Z" fill="#FFFDF8" stroke="#D1D5DB" stroke-width="0.8"/>
+                  <g class="gauri-eye gauri-eye-left">
+                    <ellipse cx="38" cy="47" rx="4" ry="4.5" fill="#16302A"/>
+                    <circle cx="36.6" cy="45.3" r="1.6" fill="#FFFFFF"/>
+                    <circle cx="39.6" cy="48.3" r="0.75" fill="#FFFFFF"/>
+                    <path d="M 33.5 43.5 C 36 41.5 40 41.5 42.5 43.5" stroke="#16302A" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+                  </g>
+                  <g class="gauri-eye gauri-eye-right">
+                    <ellipse cx="62" cy="47" rx="4" ry="4.5" fill="#16302A"/>
+                    <circle cx="60.6" cy="45.3" r="1.6" fill="#FFFFFF"/>
+                    <circle cx="63.6" cy="48.3" r="0.75" fill="#FFFFFF"/>
+                    <path d="M 57.5 43.5 C 60 41.5 64 41.5 66.5 43.5" stroke="#16302A" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+                  </g>
+                  <g class="gauri-trunk">
+                    <path class="gauri-trunk-stroke" d="M 46 53 C 47 61 48 69 51 73 C 54.5 77 60 77 62 72 C 63 68 59 65 55.5 67 C 53.5 68.5 54 71.5 56 72" stroke="url(#gauriSkin_h)" stroke-width="6.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M 46 53 C 47 61 48 69 51 73 C 54.5 77 60 77 62 72 C 63 68 59 65 55.5 67 C 53.5 68.5 54 71.5 56 72" stroke="#395A50" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    <path d="M 47.5 57 Q 50 59 52.5 57" stroke="#395A50" stroke-width="0.9" stroke-linecap="round" fill="none" opacity="0.6"/>
+                    <path d="M 48 61 Q 50.5 63 53 61" stroke="#395A50" stroke-width="0.9" stroke-linecap="round" fill="none" opacity="0.6"/>
+                  </g>
+                  <g class="gauri-emblem">
+                    <circle cx="50" cy="42" r="1.5" fill="#C1685A"/>
+                    <g class="gauri-flower" transform="translate(50, 31)">
+                      <circle cx="0" cy="-3.6" r="2.6" fill="url(#gauriMarigold_h)"/>
+                      <circle cx="3.4" cy="-1.1" r="2.6" fill="url(#gauriMarigold_h)"/>
+                      <circle cx="2.1" cy="3" r="2.6" fill="url(#gauriMarigold_h)"/>
+                      <circle cx="-2.1" cy="3" r="2.6" fill="url(#gauriMarigold_h)"/>
+                      <circle cx="-3.4" cy="-1.1" r="2.6" fill="url(#gauriMarigold_h)"/>
+                      <circle cx="0" cy="0" r="2" fill="#FEF08A" stroke="#E2963A" stroke-width="0.5"/>
+                    </g>
+                  </g>
+                  <g class="gauri-sparkles">
+                    <path class="gauri-sparkle-star gauri-sparkle-s1" d="M 65 62 Q 67 59 69 62 Q 67 65 65 62 Z" fill="#FBBF24"/>
+                    <circle class="gauri-sparkle-dot" cx="71" cy="58" r="1.1" fill="#F59E0B"/>
+                    <path class="gauri-sparkle-star gauri-sparkle-s2" d="M 59 59 Q 60 57 61 59 Q 60 61 59 59 Z" fill="#FEF08A"/>
+                  </g>
+                </g>
+              </svg>
+            </div>
+            <div class="hero-sparkles">✨</div>
+          </div>
+          
+          <h1 class="welcome-title" data-i18n="welcomeTitle">Welcome to GauriKit</h1>
+          <p class="welcome-desc" data-i18n="welcomeDesc">
+            A calm, interactive story space to practice real-world situations, evaluate decision-making, and build lifelong safety instincts.
+          </p>
+
+          <div class="setup-box">
+            <!-- Mode Selector: Classroom vs Individual -->
+            <div class="mode-selector-container">
+              <span class="input-label" data-i18n="modeSelectLabel">Facilitation Mode:</span>
+              <div class="mode-toggle-group">
+                <button class="mode-btn active" id="mode-single-btn" data-mode="individual" onclick="GauriEngine.setMode('individual')">
+                  <span class="mode-icon">🧑‍🎓</span>
+                  <span class="mode-title" data-i18n="modeIndividual">Single Student Mode</span>
+                </button>
+                <button class="mode-btn" id="mode-classroom-btn" data-mode="classroom" onclick="GauriEngine.setMode('classroom')">
+                  <span class="mode-icon">🏫</span>
+                  <span class="mode-title" data-i18n="modeClassroom">Classroom Poll & Discussion Mode</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Institution / School Name (Confidential) -->
+            <div class="setup-row">
+              <label for="institution-name" class="input-label" data-i18n="institutionLabel">School / Institution (stored locally & confidentially):</label>
+              <input type="text" id="institution-name" class="text-input" placeholder="e.g. Greenwood High or DPS" value="Fellowship Pilot School">
+            </div>
+
+            <!-- Participant / Classroom ID -->
+            <div class="setup-row">
+              <label for="participant-id" class="input-label" data-i18n="participantIdLabel">Child / Class ID:</label>
+              <div class="input-group">
+                <input type="text" id="participant-id" class="text-input" placeholder="e.g. C-101 or CLASS-4A" value="C-101">
+                <button class="small-btn" onclick="GauriEngine.generateRandomId()" data-i18n="randomBtn">Randomize</button>
+              </div>
+            </div>
+
+            <!-- Age Group / Grade Selection -->
+            <div class="setup-row">
+              <span class="input-label" data-i18n="ageGroupLabel">Age Group / Grade:</span>
+              <div class="pill-group" id="age-pill-group">
+                <button class="pill-choice active" data-age="6-8" onclick="GauriEngine.setAgeGroup('6-8')">
+                  <span class="pill-badge">🌱</span> 6 - 8 yrs (Primary)
+                </button>
+                <button class="pill-choice" data-age="9-11" onclick="GauriEngine.setAgeGroup('9-11')">
+                  <span class="pill-badge">🌿</span> 9 - 11 yrs (Upper Primary)
+                </button>
+                <button class="pill-choice" data-age="12+" onclick="GauriEngine.setAgeGroup('12+')">
+                  <span class="pill-badge">🌳</span> 12+ yrs (Middle School)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="welcome-actions">
+            <button class="action-btn primary-btn large-btn glow-pulse" onclick="GauriEngine.startJourney()">
+              <span data-i18n="startJourneyBtn">Start Safety Journey 🚀</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: PRE-ASSESSMENT (Baseline Evaluation) -->
+      <section id="screen-pre-assessment" class="screen">
+        <div class="stage-header">
+          <div class="stage-tag pre-tag" data-i18n="preTestTag">Pre-Assessment: Baseline Instincts</div>
+          <div class="step-indicator">
+            <span data-i18n="questionStep">Situation</span> <span id="pre-step-num">1</span>/4
+          </div>
+        </div>
+
+        <div class="assessment-container card-pop">
+          <div class="assessment-scenario-box">
+            <div class="scenario-icon-bubble" id="pre-icon">🍦</div>
+            <h2 class="assessment-title" id="pre-title">Scenario Title</h2>
+            <p class="assessment-story" id="pre-story">Scenario description text goes here.</p>
+          </div>
+
+          <!-- Classroom Poll Bar (Visible in Classroom Mode) -->
+          <div class="class-poll-banner" id="pre-poll-banner">
+            <span class="poll-icon">🗳️</span>
+            <span class="poll-text" data-i18n="classPollTitle">Live Class Poll & Show-of-Hands</span>
+          </div>
+
+          <div class="assessment-question-prompt" data-i18n="whatWouldYouDo">What would you do?</div>
+
+          <div class="choices-list" id="pre-choices-list">
+            <!-- Dynamically populated choices with optional vote counters -->
+          </div>
+
+          <!-- Classroom Confirm Button (Visible in Classroom Mode) -->
+          <div class="class-confirm-wrapper hidden" id="pre-class-confirm-box">
+            <button class="action-btn primary-btn large-btn" onclick="GauriEngine.confirmPreClassVote()">
+              <span data-i18n="castClassVotesBtn">Confirm Class Votes & Continue ➔</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: SCENARIO SELECTION HUB -->
+      <section id="screen-hub" class="screen">
+        <div class="hub-header">
+          <div class="hub-icon-pill">📚 Story Exploration</div>
+          <h2 class="hub-title" data-i18n="hubTitle">Interactive Safety Stories</h2>
+          <p class="hub-subtitle" data-i18n="hubSubtitle">Choose a story to enter the animated environment and practice critical safety decisions.</p>
+        </div>
+
+        <div class="scenario-grid" id="scenario-cards-grid">
+          <!-- Populated by engine.js with 4 interactive scenario cards -->
+        </div>
+
+        <div class="hub-footer">
+          <button id="proceed-post-btn" class="action-btn success-btn large-btn" onclick="GauriEngine.startPostAssessment()">
+            <span data-i18n="proceedPostBtn">Ready for Final Post-Assessment ⭐</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: INTERACTIVE ANIMATED GAME STAGE -->
+      <section id="screen-game" class="screen">
+        <div class="game-stage-header">
+          <button class="back-link-btn" onclick="GauriEngine.navigate('hub')">
+            ← <span data-i18n="backToStories">Stories Hub</span>
+          </button>
+          <div class="current-scenario-title" id="game-scenario-title">Scenario Title</div>
+          <div class="safety-shield-badge">🛡️ <span data-i18n="learningMode">Learning & Reflection</span></div>
+        </div>
+
+        <!-- TEACHER / FACILITATOR DISCUSSION BAR (For classroom teaching) -->
+        <div class="teacher-facilitator-card card-pop" id="teacher-card">
+          <div class="teacher-header">
+            <div class="teacher-title-badge">
+              <span>🧑‍🏫</span>
+              <span data-i18n="teacherGuideTitle">Teacher / Facilitator Guide</span>
+            </div>
+            <button class="teacher-toggle-pill" onclick="GauriEngine.toggleTeacherNotes()" id="teacher-toggle-btn" title="Toggle discussion notes">
+              <span id="teacher-toggle-text" data-i18n="hideTeacherGuide">Hide Teacher Guide 👁️</span>
+            </button>
+          </div>
+          <div class="teacher-content" id="teacher-content-box">
+            <div class="teacher-row">
+              <div class="teacher-tag-pill prompt-tag">🗣️ <span data-i18n="askTheClass">Ask the Class (Discussion Prompt):</span></div>
+              <div class="teacher-prompt-text" id="teacher-discussion-text">Discussion question will appear here.</div>
+            </div>
+            <div class="teacher-row rule-row">
+              <div class="teacher-tag-pill rule-tag">⭐ <span data-i18n="keySafetyRule">Key Safety Lesson:</span></div>
+              <div class="teacher-rule-text" id="teacher-rule-text">Core safety principle to explain to children.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- THE LIVING SITUATION-RESPONSIVE ANIMATED CANVAS / STAGE -->
+        <div class="stage-viewport" id="game-stage-viewport">
+          <!-- Situation Location Pill Badge -->
+          <div class="env-location-pill" id="env-location-pill">
+            <span class="env-loc-icon" id="env-loc-icon">🏫</span>
+            <span class="env-loc-text" id="env-loc-text">School Safety Zone</span>
+          </div>
+
+          <!-- Ambient Light Vignette Layer -->
+          <div class="stage-ambient-light"></div>
+
+          <!-- Dynamic High-Fidelity SVG Backdrop (School, Digital Room, Mall, Living Room) -->
+          <div class="environment-backdrop" id="env-backdrop"></div>
+
+          <!-- CHARACTER ACTORS CONTAINER -->
+          <div class="actors-stage" id="actors-stage">
+            <!-- Left Character (Adult / Stranger / Staff) -->
+            <div class="actor-box actor-left" id="actor-left-container">
+              <div class="speech-bubble bubble-left" id="bubble-left">
+                <div class="bubble-speaker-tag" id="bubble-speaker-left">🗣️ Unfamiliar Adult</div>
+                <p id="bubble-left-text">"Hello!"</p>
+              </div>
+              <div class="svg-character" id="svg-actor-left"></div>
+              <div class="actor-nametag" id="nametag-left">Adult</div>
+            </div>
+
+            <!-- Mascot Guide (Gauri Elephant Safety Companion) -->
+            <div class="actor-guide" id="actor-guide-container">
+              <div class="guide-avatar" onclick="GauriEngine.celebrateMascot(event, this)" title="Gauri Guide — Click to interact!">
+                <svg class="gauri-elephant-logo gauri-guide-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gauri Guide">
+                  <defs>
+                    <linearGradient id="gauriSkin_g" x1="20%" y1="10%" x2="80%" y2="90%">
+                      <stop offset="0%" stop-color="#8DB3A7"/>
+                      <stop offset="45%" stop-color="#6B9287"/>
+                      <stop offset="100%" stop-color="#4B7266"/>
+                    </linearGradient>
+                    <linearGradient id="gauriEar_g" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#FDE8E3"/>
+                      <stop offset="60%" stop-color="#F7C8BE"/>
+                      <stop offset="100%" stop-color="#EAA698"/>
+                    </linearGradient>
+                    <linearGradient id="gauriMarigold_g" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#FCD34D"/>
+                      <stop offset="50%" stop-color="#F59E0B"/>
+                      <stop offset="100%" stop-color="#D97706"/>
+                    </linearGradient>
+                  </defs>
+                  <g class="gauri-elephant-group">
+                    <path class="gauri-body" d="M 28 86 C 28 72 38 68 50 68 C 62 68 72 72 72 86 C 72 92 28 92 28 86 Z" fill="url(#gauriSkin_g)" stroke="#395A50" stroke-width="1.2"/>
+                    <g class="gauri-ear gauri-ear-left">
+                      <path d="M 37 36 C 18 34 8 48 10 63 C 12 74 24 77 36 68 Z" fill="url(#gauriSkin_g)" stroke="#395A50" stroke-width="1.2"/>
+                      <path d="M 34 41 C 21 40 15 49 17 60 C 19 68 26 69 33 63 Z" fill="url(#gauriEar_g)" opacity="0.9"/>
+                    </g>
+                    <g class="gauri-ear gauri-ear-right">
+                      <path d="M 63 36 C 82 34 92 48 90 63 C 88 74 76 77 64 68 Z" fill="url(#gauriSkin_g)" stroke="#395A50" stroke-width="1.2"/>
+                      <path d="M 66 41 C 79 40 85 49 83 60 C 81 68 74 69 67 63 Z" fill="url(#gauriEar_g)" opacity="0.9"/>
+                    </g>
+                    <ellipse class="gauri-head" cx="50" cy="51" rx="25" ry="22.5" fill="url(#gauriSkin_g)" stroke="#395A50" stroke-width="1.4"/>
+                    <ellipse class="gauri-blush gauri-blush-left" cx="34" cy="57" rx="4.5" ry="2.8" fill="#F472B6" opacity="0.45"/>
+                    <ellipse class="gauri-blush gauri-blush-right" cx="66" cy="57" rx="4.5" ry="2.8" fill="#F472B6" opacity="0.45"/>
+                    <path class="gauri-tusk gauri-tusk-l" d="M 42 60 C 40 64 38 68 40 71 C 42 71 43 67 44 62 Z" fill="#FFFDF8" stroke="#D1D5DB" stroke-width="0.8"/>
+                    <path class="gauri-tusk gauri-tusk-r" d="M 58 60 C 60 64 62 68 60 71 C 58 71 57 67 56 62 Z" fill="#FFFDF8" stroke="#D1D5DB" stroke-width="0.8"/>
+                    <g class="gauri-eye gauri-eye-left">
+                      <ellipse cx="38" cy="47" rx="4" ry="4.5" fill="#16302A"/>
+                      <circle cx="36.6" cy="45.3" r="1.6" fill="#FFFFFF"/>
+                      <circle cx="39.6" cy="48.3" r="0.75" fill="#FFFFFF"/>
+                      <path d="M 33.5 43.5 C 36 41.5 40 41.5 42.5 43.5" stroke="#16302A" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+                    </g>
+                    <g class="gauri-eye gauri-eye-right">
+                      <ellipse cx="62" cy="47" rx="4" ry="4.5" fill="#16302A"/>
+                      <circle cx="60.6" cy="45.3" r="1.6" fill="#FFFFFF"/>
+                      <circle cx="63.6" cy="48.3" r="0.75" fill="#FFFFFF"/>
+                      <path d="M 57.5 43.5 C 60 41.5 64 41.5 66.5 43.5" stroke="#16302A" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+                    </g>
+                    <g class="gauri-trunk">
+                      <path class="gauri-trunk-stroke" d="M 46 53 C 47 61 48 69 51 73 C 54.5 77 60 77 62 72 C 63 68 59 65 55.5 67 C 53.5 68.5 54 71.5 56 72" stroke="url(#gauriSkin_g)" stroke-width="6.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                      <path d="M 46 53 C 47 61 48 69 51 73 C 54.5 77 60 77 62 72 C 63 68 59 65 55.5 67 C 53.5 68.5 54 71.5 56 72" stroke="#395A50" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                    </g>
+                    <g class="gauri-emblem">
+                      <circle cx="50" cy="42" r="1.5" fill="#C1685A"/>
+                      <g class="gauri-flower" transform="translate(50, 31)">
+                        <circle cx="0" cy="-3.6" r="2.6" fill="url(#gauriMarigold_g)"/>
+                        <circle cx="3.4" cy="-1.1" r="2.6" fill="url(#gauriMarigold_g)"/>
+                        <circle cx="2.1" cy="3" r="2.6" fill="url(#gauriMarigold_g)"/>
+                        <circle cx="-2.1" cy="3" r="2.6" fill="url(#gauriMarigold_g)"/>
+                        <circle cx="-3.4" cy="-1.1" r="2.6" fill="url(#gauriMarigold_g)"/>
+                        <circle cx="0" cy="0" r="2" fill="#FEF08A" stroke="#E2963A" stroke-width="0.5"/>
+                      </g>
+                    </g>
+                  </g>
+                </svg>
+              </div>
+              <div class="guide-thought-bubble" id="guide-bubble">
+                <span class="guide-name" data-i18n="guideName">Gauri Guide:</span>
+                <p id="guide-bubble-text">Let's look at this situation calmly...</p>
+              </div>
+            </div>
+
+            <!-- Right Character (The Child Player) -->
+            <div class="actor-box actor-right" id="actor-right-container">
+              <div class="speech-bubble bubble-right" id="bubble-right">
+                <div class="bubble-speaker-tag" id="bubble-speaker-right">🧑‍🎓 You</div>
+                <p id="bubble-right-text"><span class="thinking-dots"><span>Thinking...</span> <span class="dot-1">●</span><span class="dot-2">●</span><span class="dot-3">●</span></span></p>
+              </div>
+              <div class="svg-character" id="svg-actor-right"></div>
+              <div class="actor-nametag" id="nametag-right" data-i18n="youTag">You</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DECISION & GUIDANCE DRAWER -->
+        <div class="decision-drawer card-pop" id="decision-drawer">
+          <!-- Interaction State: Making a Choice -->
+          <div id="drawer-choices-state">
+            <div class="drawer-prompt">
+              <div class="prompt-icon-ring">💡</div>
+              <div class="prompt-text-group">
+                <span class="prompt-title" id="game-question-prompt" data-i18n="whatWouldYouDo">What would you do?</span>
+                <span class="prompt-subtitle">Take your time. Listen to your gut instincts and choose the safest step.</span>
+              </div>
+            </div>
+            <div class="game-choices-grid" id="game-choices-grid">
+              <!-- Choices rendered here with interactive buttons -->
+            </div>
+          </div>
+
+          <!-- Interaction State: Non-Punitive Pause & Reflection Guidance -->
+          <div id="drawer-guidance-state" class="guidance-box hidden">
+            <div class="guidance-status-badge" id="guidance-status-badge">
+              <span class="guidance-icon" id="guidance-status-icon">🌱</span>
+              <span class="guidance-tag" id="guidance-status-tag">Reflective Moment</span>
+            </div>
+            <h3 class="guidance-heading" id="guidance-heading">Let's pause and think</h3>
+            <div class="guidance-body" id="guidance-body-text">
+              Detailed calm educational explanation here.
+            </div>
+            <div class="guidance-actions" id="guidance-actions-box">
+              <button class="action-btn primary-btn large-btn glow-pulse" id="guidance-continue-btn" onclick="GauriEngine.onGuidanceAcknowledge()">
+                <span data-i18n="tryAnotherChoice">Try Another Choice ↺</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: POST-ASSESSMENT (Isomorphic Transfer Evaluation) -->
+      <section id="screen-post-assessment" class="screen">
+        <div class="stage-header">
+          <div class="stage-tag post-tag" data-i18n="postTestTag">Post-Assessment: Learning Transfer</div>
+          <div class="step-indicator">
+            <span data-i18n="questionStep">Situation</span> <span id="post-step-num">1</span>/4
+          </div>
+        </div>
+
+        <div class="assessment-container card-pop">
+          <div class="assessment-scenario-box">
+            <div class="scenario-icon-bubble" id="post-icon">🏊</div>
+            <h2 class="assessment-title" id="post-title">Post Scenario Title</h2>
+            <p class="assessment-story" id="post-story">Scenario description text goes here.</p>
+          </div>
+
+          <!-- Classroom Poll Bar -->
+          <div class="class-poll-banner" id="post-poll-banner">
+            <span class="poll-icon">🗳️</span>
+            <span class="poll-text" data-i18n="classPollTitle">Live Class Poll & Show-of-Hands</span>
+          </div>
+
+          <div class="assessment-question-prompt" data-i18n="whatWouldYouDo">What would you do?</div>
+
+          <div class="choices-list" id="post-choices-list">
+            <!-- Dynamically populated choices -->
+          </div>
+
+          <!-- Classroom Confirm Button (Visible in Classroom Mode) -->
+          <div class="class-confirm-wrapper hidden" id="post-class-confirm-box">
+            <button class="action-btn primary-btn large-btn" onclick="GauriEngine.confirmPostClassVote()">
+              <span data-i18n="castClassVotesBtn">Confirm Class Votes & Finish ➔</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 6: RESEARCHER & EDUCATOR ANALYTICS DASHBOARD -->
+      <section id="screen-dashboard" class="screen">
+        <div class="dashboard-header">
+          <div class="dash-title-group">
+            <div class="hub-icon-pill">🎓 Fellowship Research Hub</div>
+            <h2 class="dash-title" data-i18n="dashboardTitle">Educator & Researcher Analytics Hub</h2>
+            <p class="dash-desc" data-i18n="dashboardSubtitle">
+              Rigorous empirical evaluation of child safety decision-making, isomorphic learning transfer, and cognitive skill progression.
+            </p>
+          </div>
+
+          <div class="dash-controls">
+            <button class="pill-btn primary-btn" onclick="GauriEngine.exportDataJSON()" title="Export JSON dataset">
+              <span>📥</span> <span data-i18n="exportJsonBtn">Export JSON</span>
+            </button>
+            <button class="pill-btn success-btn" onclick="GauriEngine.exportMasterCSV()" title="Download CSV spreadsheet">
+              <span>📊</span> <span data-i18n="exportMasterCsvBtn">Download Master CSV</span>
+            </button>
+            <button class="pill-btn secondary-btn" onclick="window.print()" title="Print this report">
+              <span>🖨️</span> <span data-i18n="printReportBtn">Print Report</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- DASHBOARD NAVIGATION TABS (5 Clear Views) -->
+        <div class="dash-tabs-bar">
+          <button class="dash-tab-btn active" data-tab="overview" onclick="GauriEngine.setDashboardTab('overview')">
+            <span data-i18n="tabOverview">📊 Overview & Stats</span>
+          </button>
+          <button class="dash-tab-btn" data-tab="individual" onclick="GauriEngine.setDashboardTab('individual')">
+            <span data-i18n="tabIndividual">🧑‍🎓 Individual Student Explorer</span>
+          </button>
+          <button class="dash-tab-btn" data-tab="classroom" onclick="GauriEngine.setDashboardTab('classroom')">
+            <span data-i18n="tabClassroom">🏫 Classroom Discussion Analytics</span>
+          </button>
+          <button class="dash-tab-btn" data-tab="age_cohorts" onclick="GauriEngine.setDashboardTab('age_cohorts')">
+            <span data-i18n="tabAgeCohorts">👥 Data-Driven Age Cohorts</span>
+          </button>
+          <button class="dash-tab-btn" data-tab="master_roster" onclick="GauriEngine.setDashboardTab('master_roster')">
+            <span data-i18n="tabMasterRoster">📁 Master Session Records</span>
+          </button>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 1: OVERVIEW & OVERALL METRICS -->
+        <!-- ================================================================= -->
+        <div class="dash-tab-panel active" id="tab-panel-overview">
+          <!-- SUMMARY STATS TILES -->
+          <div class="stats-tiles-grid">
+            <div class="stat-card">
+              <div class="stat-icon">👥</div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statTotalParticipants">Total Participants</span>
+                <span class="stat-val" id="stat-total-participants">0</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">🧑‍🎓</div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statIndividualRuns">Individual Evaluations</span>
+                <span class="stat-val" id="stat-individual-count">0</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">🏫</div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statClassroomRuns">Classroom Discussions</span>
+                <span class="stat-val" id="stat-classroom-count">0</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon">📈</div>
+              <div class="stat-content">
+                <span class="stat-label" data-i18n="statAvgObservedGrowth">Avg Observed Growth (Δ)</span>
+                <span class="stat-val" id="stat-avg-growth">No Data</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PRACTICAL LIFE SAFETY COMPETENCIES MASTERED -->
+          <div class="dash-panel card-pop" style="margin-top: 1.5rem;">
+            <h3 class="panel-title">
+              <span>🛡️</span> <span data-i18n="skillsMasteredTitle">Key Life Safety Competencies Mastered</span>
+            </h3>
+            <p class="panel-sub" data-i18n="skillsMasteredSub">Core real-world safety habits and decision rules acquired by students during the lesson.</p>
+            
+            <div class="competencies-grid" id="competencies-container">
+              <!-- Dynamically populated life safety rules -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 2: INDIVIDUAL STUDENT EXPLORER -->
+        <!-- ================================================================= -->
+        <div class="dash-tab-panel" id="tab-panel-individual">
+          <div class="dash-panel card-pop">
+            <div class="session-selector-bar">
+              <label for="individual-session-select" class="input-label" data-i18n="selectStudentPrompt">
+                Select a participant to inspect detailed metrics:
+              </label>
+              <select id="individual-session-select" class="text-input" onchange="GauriEngine.onSelectIndividualSession()">
+                <!-- Populated with individual student sessions -->
+              </select>
+            </div>
+
+            <div id="individual-details-container">
+              <!-- Dynamically populated with individual student metrics & charts -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 3: CLASSROOM DISCUSSION ANALYTICS -->
+        <!-- ================================================================= -->
+        <div class="dash-tab-panel" id="tab-panel-classroom">
+          <div class="dash-panel card-pop">
+            <h3 class="panel-title">
+              <span>🏫</span> <span data-i18n="classShiftTitle">Classroom Collective Decision Shift</span>
+            </h3>
+            <p class="panel-sub" data-i18n="classShiftSub">
+              Aggregated show-of-hands vote shift from baseline instincts to verified safe actions.
+            </p>
+
+            <div id="classroom-analytics-container">
+              <!-- Dynamically populated classroom analytics -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 4: DATA-DRIVEN AGE COHORTS -->
+        <!-- ================================================================= -->
+        <div class="dash-tab-panel" id="tab-panel-age_cohorts">
+          <div class="dash-panel card-pop">
+            <h3 class="panel-title">
+              <span>👥</span> <span data-i18n="ageCohortTitle">Age-Group Empirical Comparison</span>
+            </h3>
+            <p class="panel-sub" data-i18n="ageCohortSub">
+              Actual cohort performance calculated strictly from stored participant session data.
+            </p>
+            
+            <div id="age-cohorts-container">
+              <!-- Dynamically populated strictly from real session data -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 5: MASTER SESSION RECORDS -->
+        <!-- ================================================================= -->
+        <div class="dash-tab-panel" id="tab-panel-master_roster">
+          <div class="dash-panel card-pop">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.5rem;">
+              <h3 class="panel-title" style="margin-bottom: 0;">
+                <span>📁</span> <span data-i18n="resultsLogTitle">All Recorded Sessions (Confidential Local Storage)</span>
+              </h3>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="small-btn" onclick="GauriEngine.exportMasterCSV()">
+                  <span>📊</span> <span data-i18n="exportMasterCsvBtn">Download Master CSV</span>
+                </button>
+                <button class="small-btn" style="background: #FFF5F5; color: #E53E3E; border-color: #FEB2B2;" onclick="GauriEngine.clearMasterRoster()">
+                  <span>🗑️</span> <span data-i18n="clearHistoryBtn">Clear Local History</span>
+                </button>
+              </div>
+            </div>
+            <p class="panel-sub" data-i18n="resultsLogSub">Every completed session is automatically appended and saved confidentially on this laptop.</p>
+
+            <div class="timeline-table-wrapper">
+              <table class="data-table" id="master-roster-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="colWhen">Date & Time</th>
+                    <th data-i18n="colInstitution">Institution</th>
+                    <th data-i18n="colId">Participant / Class ID</th>
+                    <th data-i18n="colAge">Age Group</th>
+                    <th data-i18n="colMode">Mode</th>
+                    <th data-i18n="colPre">Pre-Test</th>
+                    <th data-i18n="colPost">Post-Test</th>
+                    <th data-i18n="colGrowth">Growth (Δ)</th>
+                    <th data-i18n="colAction">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="roster-table-body">
+                  <!-- Dynamically populated from localStorage -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- DASHBOARD BACK ACTION -->
+        <div class="dashboard-back-action" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 2rem;">
+          <button class="action-btn secondary-btn large-btn" onclick="GauriEngine.navigate('hub')">
+            ← <span data-i18n="backToStories">Return to Stories Hub</span>
+          </button>
+          <button class="action-btn primary-btn large-btn" onclick="GauriEngine.startNewSession()">
+            <span>➕</span> <span data-i18n="startNewSessionBtn">Start Next Session ➔</span>
+          </button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="scenarios.js"></script>
+  <script src="engine.js"></script>
+</body>
+</html>
