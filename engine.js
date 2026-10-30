@@ -2473,6 +2473,9 @@ const GauriEngine = (function () {
       `;
     }
 
+    container.classList.remove("mood-neutral", "mood-happy", "mood-thinking");
+    void container.offsetWidth;
+    container.classList.add("mood-" + mood);
     container.innerHTML = `
       <svg viewBox="0 0 120 200" width="100%" height="100%">
         <ellipse cx="60" cy="190" rx="34" ry="7" fill="rgba(0,0,0,0.12)" />

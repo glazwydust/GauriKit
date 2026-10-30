@@ -387,3 +387,104 @@ h1, h2, h3, h4, .welcome-title, .hub-title, .dash-title, .panel-title, .brand-ti
 
 .choice-badge { border: 2.5px solid var(--ink); border-radius: 50%; font-family: var(--font-display); font-weight: 800; box-shadow: 0 2px 0 var(--ink); }
 .choice-action-hint { color: var(--text-muted); font-family: var(--font-display); font-weight: 700; }
+
+/* =====================================================================
+   STAGE v2: bubbles sit ABOVE the heads, scene is alive
+   ===================================================================== */
+.stage-viewport {
+  height: 540px;
+  background: linear-gradient(180deg, #BDE6FF 0%, #DDF3FF 48%, #FFE9C7 48%, #FFD9A0 100%);
+}
+.actors-stage { padding: 0 4.5rem 1.2rem; }
+.actor-box { overflow: visible; filter: drop-shadow(0 8px 0 rgba(46,58,107,.18)); }
+.actor-box::after { background: radial-gradient(ellipse at center, rgba(46,58,107,.35) 0%, rgba(46,58,107,0) 70%); }
+.actor-box:hover { transform: translateY(-4px) scale(1.03); }
+
+/* bubble: bottom edge sits just above the character's head, never over the face */
+.speech-bubble {
+  top: auto; bottom: calc(100% + 2px);
+  width: 270px; max-width: 42vw;
+  background: #fff; border: 3px solid var(--ink); border-radius: 22px;
+  box-shadow: 0 5px 0 var(--ink);
+  backdrop-filter: none;
+  transform-origin: 50% 100%;
+  animation: bubbleIn .55s cubic-bezier(.34,1.56,.64,1) both, bubbleFloat 4.5s ease-in-out .6s infinite;
+}
+.bubble-left { left: 50%; margin-left: -60px; background: #FFF4D6; }
+.bubble-right { right: 50%; margin-right: -60px; left: auto; background: #E6F7D4; border-color: var(--ink); }
+.bubble-left::after { left: 52px; border-color: var(--ink) transparent; bottom: -14px; border-width: 14px 12px 0; filter: none; }
+.bubble-right::after { right: 52px; left: auto; border-color: var(--ink) transparent; bottom: -14px; border-width: 14px 12px 0; filter: none; }
+.speech-bubble::before { content: ""; position: absolute; bottom: -8px; left: 55px; border-width: 10px 9px 0; border-style: solid; border-color: #FFF4D6 transparent; z-index: 2; }
+.bubble-right::before { left: auto; right: 55px; border-color: #E6F7D4 transparent; }
+.bubble-speaker-tag { color: var(--coral); font-family: var(--font-display); font-weight: 800; }
+.speech-bubble p { margin: 0; font-weight: 800; color: var(--ink); line-height: 1.35; }
+@keyframes bubbleIn { 0% { opacity: 0; transform: scale(.4) translateY(24px) rotate(-3deg); } 60% { opacity: 1; transform: scale(1.06) translateY(-4px) rotate(1deg); } 100% { opacity: 1; transform: scale(1) translateY(0) rotate(0); } }
+@keyframes bubbleFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+/* mascot capsule: sticker style, top centre, clear of bubbles */
+.actor-guide { top: 12px; border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink); background: #fff; backdrop-filter: none; animation: guideBob 3.2s ease-in-out infinite; }
+.actor-guide:hover { box-shadow: 0 6px 0 var(--ink); }
+@keyframes guideBob { 0%,100% { margin-top: 0; } 50% { margin-top: 5px; } }
+.env-location-pill { top: 14px; left: 16px; max-width: 24%; }
+
+/* characters breathe, sway and blink */
+.svg-character { transform-origin: 50% 100%; animation: breathe 3.2s ease-in-out infinite; }
+.actor-right .svg-character { animation-delay: .8s; }
+@keyframes breathe { 0%,100% { transform: scale(1,1) rotate(-.8deg); } 50% { transform: scale(1.025,.975) rotate(.8deg); } }
+.svg-character circle[r="3"], .svg-character circle[r="3.5"] { transform-box: fill-box; transform-origin: center; animation: blink 4.6s infinite; }
+@keyframes blink { 0%,92%,100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+.actor-left .svg-character { animation-name: breathe, enterLeft; animation-duration: 3.2s, .7s; animation-iteration-count: infinite, 1; animation-timing-function: ease-in-out, cubic-bezier(.34,1.56,.64,1); }
+@keyframes enterLeft { from { opacity: 0; translate: -60px 0; } to { opacity: 1; translate: 0 0; } }
+
+/* child reacts to the choice */
+.svg-character.mood-happy { animation: breathe 3.2s ease-in-out infinite, cheerHop .9s cubic-bezier(.34,1.56,.64,1) 2; }
+@keyframes cheerHop { 0%,100% { translate: 0 0; } 35% { translate: 0 -26px; } 60% { translate: 0 0; } 78% { translate: 0 -10px; } }
+.svg-character.mood-thinking { animation: breathe 3.2s ease-in-out infinite, ponder 2.2s ease-in-out infinite; }
+@keyframes ponder { 0%,100% { rotate: 0deg; } 50% { rotate: -3deg; } }
+.actor-right:has(.mood-happy)::before { content: "✨"; position: absolute; top: 20px; right: -6px; font-size: 1.8rem; animation: sparklePop 1.4s ease-out 2; z-index: 5; }
+@keyframes sparklePop { 0% { opacity: 0; transform: scale(.2) rotate(0); } 40% { opacity: 1; transform: scale(1.3) rotate(25deg); } 100% { opacity: 0; transform: scale(1.6) translateY(-24px) rotate(60deg); } }
+
+/* sky: drifting clouds and a warm glow, behind the characters */
+.stage-viewport::before, .stage-viewport::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 120px; pointer-events: none; z-index: 3;
+  background-repeat: repeat-x; background-size: 520px 120px;
+}
+.stage-viewport::before {
+  top: 70px; opacity: .95; animation: cloudDrift 70s linear infinite;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 120'%3E%3Cg fill='%23fff'%3E%3Cellipse cx='90' cy='60' rx='46' ry='20'/%3E%3Cellipse cx='125' cy='48' rx='32' ry='22'/%3E%3Cellipse cx='62' cy='52' rx='26' ry='16'/%3E%3Cellipse cx='370' cy='34' rx='38' ry='15'/%3E%3Cellipse cx='398' cy='26' rx='24' ry='15'/%3E%3C/g%3E%3C/svg%3E");
+}
+.stage-viewport::after {
+  top: 170px; opacity: .7; animation: cloudDrift 110s linear infinite reverse;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 520 120'%3E%3Cg fill='%23fff'%3E%3Cellipse cx='250' cy='50' rx='40' ry='16'/%3E%3Cellipse cx='278' cy='40' rx='26' ry='16'/%3E%3C/g%3E%3C/svg%3E");
+}
+@keyframes cloudDrift { from { background-position-x: 0; } to { background-position-x: 520px; } }
+.stage-ambient-light { background: radial-gradient(circle at 85% 8%, rgba(255,214,102,.55) 0, rgba(255,214,102,0) 38%); animation: sunGlow 5s ease-in-out infinite; }
+@keyframes sunGlow { 0%,100% { opacity: .75; } 50% { opacity: 1; } }
+
+/* ---------- whole-site motion ---------- */
+.screen.active { animation: screenIn .5s cubic-bezier(.22,1,.36,1) both; }
+@keyframes screenIn { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: none; } }
+.story-card { transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
+.story-card:hover { transform: translateY(-6px) rotate(-.6deg); }
+.story-card .scenario-icon-bubble, .story-card [class*="icon"] { transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
+.story-card:hover .scenario-icon-bubble, .story-card:hover [class*="icon"] { transform: scale(1.15) rotate(-8deg); }
+.choice-card-btn:hover .choice-badge, .choice-row-wrapper:hover .choice-badge { animation: badgeWiggle .5s ease; }
+@keyframes badgeWiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-14deg) scale(1.12); } 75% { transform: rotate(12deg) scale(1.12); } }
+.btn-primary, .btn-secondary, .primary-btn { transition: transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .15s; }
+.btn-primary:hover, .primary-btn:hover { transform: translateY(-3px); }
+.gauri-elephant-logo { animation: logoWiggle 6s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes logoWiggle { 0%,88%,100% { transform: rotate(0); } 92% { transform: rotate(-7deg); } 96% { transform: rotate(6deg); } }
+.safety-shield-badge { animation: badgeGlow 3s ease-in-out infinite; }
+@keyframes badgeGlow { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+@media (max-width: 760px) {
+  .stage-viewport { height: 520px; }
+  .actors-stage { padding: 0 .6rem 1rem; }
+  .actor-box { width: 120px; }
+  .speech-bubble { width: 190px; max-width: 48vw; padding: .6rem .8rem; font-size: .85rem; }
+  .bubble-left { margin-left: -30px; } .bubble-right { margin-right: -30px; }
+  .env-location-pill { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage-viewport::before, .stage-viewport::after, .svg-character, .speech-bubble, .actor-guide, .gauri-elephant-logo, .stage-ambient-light { animation: none !important; }
+}
