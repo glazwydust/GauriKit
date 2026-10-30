@@ -11,19 +11,19 @@ const GAURI_DATA = {
       tagline: "Safe Choices, Smart Minds",
       navDashboard: "Researcher Hub",
       welcomeTitle: "Welcome to GauriKit",
-      welcomeDesc: "A calm, interactive story space to practice real-world situations, evaluate decision-making, and build lifelong safety instincts.",
+      welcomeDesc: "A calm and interactive story space to practice real-world situations, evaluate decision-making and build lifelong safety instincts.",
       participantIdLabel: "Child / Class ID:",
-      institutionLabel: "School / Institution (stored locally & confidentially):",
+      institutionLabel: "School / Institution :",
       randomBtn: "Randomize",
-      ageGroupLabel: "Age Group / Grade:",
-      startJourneyBtn: "Start Safety Journey 🚀",
-      startNewSessionBtn: "Start Next Session ➔",
+      ageGroupLabel: "Age Group:",
+      startJourneyBtn: "Start Safety Journey ",
+      startNewSessionBtn: "Start Next Session",
       preTestTag: "Pre-Assessment: Baseline Instincts",
       postTestTag: "Post-Assessment: Learning Transfer",
       questionStep: "Situation",
       whatWouldYouDo: "What would you do?",
       hubTitle: "Interactive Safety Stories",
-      hubSubtitle: "Slide through the stories and pick any one to practise. Try each choice, and say the safe answer out loud!",
+      hubSubtitle: "Slide through the stories and pick any one to practise. Try each choice and say the safe answer out loud!",
       slideHint: "Slide to explore all the stories, then tap one to begin.",
       proceedPostBtn: "Ready for Final Post-Assessment ⭐",
       backToStories: "Stories Hub",
@@ -41,11 +41,11 @@ const GAURI_DATA = {
       printReportBtn: "Print Report",
       
       // Dashboard Tabs
-      tabOverview: "📊 Overview & Stats",
-      tabIndividual: "🧑‍🎓 Individual Student Explorer",
-      tabClassroom: "🏫 Classroom Discussion Analytics",
-      tabAgeCohorts: "👥 Data-Driven Age Cohorts",
-      tabMasterRoster: "📁 Master Session Records",
+      tabOverview: "Overview & Stats",
+      tabIndividual: " Individual Student Explorer",
+      tabClassroom: " Classroom Discussion Analytics",
+      tabAgeCohorts: " Data-Driven Age Cohorts",
+      tabMasterRoster: " Master Session Records",
       
       // Overview Metric Labels
       statTotalParticipants: "Total Participants",
@@ -98,15 +98,15 @@ const GAURI_DATA = {
       
       // Teacher Guide
       teacherGuideTitle: "Teacher / Facilitator Guide",
-      askTheClass: "Ask the Class (Discussion Prompt):",
+      askTheClass: "Ask the Class :",
       keySafetyRule: "Key Safety Lesson to Teach:",
-      hideTeacherGuide: "Hide Teacher Guide 👁️",
-      showTeacherGuide: "Show Teacher Guide 💡",
+      hideTeacherGuide: "Hide Teacher Guide ",
+      showTeacherGuide: "Show Teacher Guide ",
       
       // Facilitation Mode
       modeSelectLabel: "Facilitation Mode:",
-      modeClassroom: "🏫 Whole-Classroom Discussion & Poll Mode",
-      modeIndividual: "🧑‍🎓 Single Student Mode",
+      modeClassroom: "Whole-Classroom Discussion & Poll Mode",
+      modeIndividual: " Single Student Mode",
       classPollTitle: "Live Class Poll & Show-of-Hands",
       handsUpPrompt: "Count show-of-hands for each option:",
       classConsensusBadge: "Classroom Consensus:",
@@ -117,7 +117,7 @@ const GAURI_DATA = {
       radarTitle: "Cognitive Transfer Radar",
       radarSub: "Pre-Assessment Baseline (Amber) vs Post-Assessment Transfer (Emerald)",
       trajectoryTitle: "Decision & Learning Trajectory Log",
-      trajectorySub: "Chronological record of situations encountered, choices made, and reflection cycles."
+      trajectorySub: "Chronological record of situations encountered, choices made and reflection cycles."
     },
     hi: {
       tagline: "सुरक्षित विकल्प, सजग मन",
@@ -872,7 +872,7 @@ const GAURI_DATA = {
         },
         {
           id: "post_4_b",
-          text_en: "Say 'NO! My body and photos are private', step away immediately, and inform your parents right away.",
+          text_en: "Say 'NO! My body and photos are private', step away immediately and inform your parents right away.",
           text_hi: "'नहीं! मेरा शरीर और तस्वीरें निजी हैं' कहें, तुरंत दूर हटें और माता-पिता को पूरी बात बताएं।",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           isSafe: true
