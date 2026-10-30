@@ -13,6 +13,8 @@
 const GauriEngine = (function () {
   // LocalStorage Key
   const STORAGE_KEY_SESSIONS = "gaurikit_master_sessions_v3";
+  const STORAGE_KEY_FOLLOWUPS = "gaurikit_followups_v1";
+  const STORAGE_KEY_OBS = "gaurikit_observations_v1";
 
   // Application State
   const state = {
@@ -35,6 +37,17 @@ const GauriEngine = (function () {
     preIndex: 0,
     preResponses: [], // Array of response objects
     
+    choiceOrder: {}, // { questionId: [choice ids in shuffled order] } so the safe answer is not always in the same spot
+
+    // Research design settings (chosen on the welcome screen)
+    group: "learning",      // "learning" = does the stories | "comparison" = Pre -> Post with NO stories (control)
+    length: "full",         // "full" = 12 questions | "quick" = 6 questions
+    sessionType: "main",    // "main" = Pre -> stories -> Post | "followup" = repeat check weeks later
+    formOrder: "AB",        // which form is used as Pre / Post (alternates, so form difficulty cancels out)
+    preItems: GAURI_DATA.preAssessment,
+    postItems: GAURI_DATA.postAssessment,
+    rehearsals: [],         // times the child ticked "I said it out loud"
+    linkedSessionId: null,
     completedStories: new Set(),
     activeStory: null,
     activeChoice: null,
@@ -220,6 +233,21 @@ const GauriEngine = (function () {
     });
   }
 
+  // Generic pill selector helper
+  function setPill(containerId, attr, value) {
+    document.querySelectorAll(`#${containerId} .pill-choice`).forEach(btn => {
+      btn.classList.toggle("active", btn.getAttribute(attr) === value);
+    });
+  }
+  function setGroup(v) { state.group = v; playClick(); setPill("group-pill-group", "data-group", v); }
+  function setLength(v) { state.length = v; playClick(); setPill("length-pill-group", "data-length", v); }
+  function setSessionType(v) {
+    state.sessionType = v; playClick();
+    setPill("session-pill-group", "data-session", v);
+    const hint = document.getElementById("session-type-hint");
+    if (hint) hint.classList.toggle("hidden", v !== "followup");
+  }
+
   function generateRandomId() {
     playClick();
     const randNum = Math.floor(100 + Math.random() * 900);
@@ -228,6 +256,39 @@ const GauriEngine = (function () {
       input.value = state.mode === "classroom" ? `CLASS-${randNum}` : `C-${randNum}`;
       state.participantId = input.value;
     }
+  }
+
+
+  // --- Assessment helpers: shuffled choices + skill masking -------------------
+  function orderedChoices(q) {
+    if (!state.choiceOrder[q.id]) {
+      const ids = q.choices.map(c => c.id);
+      for (let i = ids.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [ids[i], ids[j]] = [ids[j], ids[i]];
+      }
+      state.choiceOrder[q.id] = ids;
+    }
+    return state.choiceOrder[q.id].map(id => q.choices.find(c => c.id === id));
+  }
+
+  function testedSkills(q) {
+    return (q && q.tests && q.tests.length) ? q.tests.slice() : Object.keys(GAURI_DATA.skills);
+  }
+
+  // A safe answer earns only the skills this question actually tests; an unsafe answer earns none.
+  function skillsEarned(q, choice) {
+    const out = {};
+    Object.keys(GAURI_DATA.skills).forEach(k => { out[k] = 0; });
+    if (choice && choice.isSafe === true) testedSkills(q).forEach(k => { out[k] = 1; });
+    return out;
+  }
+
+  function setStepTotals() {
+    const a = document.getElementById("pre-step-total");
+    if (a) a.textContent = state.preItems.length;
+    const b = document.getElementById("post-step-total");
+    if (b) b.textContent = state.postItems.length;
   }
 
   // Start Assessment Journey
@@ -260,23 +321,62 @@ const GauriEngine = (function () {
     state.postResponses = [];
     state.classroomPreVotes = {};
     state.classroomPostVotes = {};
+    state.choiceOrder = {};
+    state.rehearsals = [];
+    state.linkedSessionId = null;
+
+    // Build this child's test forms. The order alternates (AB, BA, AB...) across sessions so that
+    // "one form is a bit easier" cannot be mistaken for learning. Question order is shuffled too.
+    state.formOrder = (getAllStoredSessions().length % 2 === 0) ? "AB" : "BA";
+    const forms = GauriResearch.buildForms(state.length, state.formOrder);
+    state.preItems = forms.pre;
+    state.postItems = forms.post;
+
+    if (state.sessionType === "followup") {
+      startFollowup();
+      return;
+    }
 
     navigate("pre-assessment");
     renderPreQuestion();
+  }
+
+  // Follow-up check: the same child, weeks later, to see whether the skills last (skills fade without boosters).
+  function startFollowup() {
+    const prior = getAllStoredSessions().find(x =>
+      x.participant_id === state.participantId && x.mode === state.mode && Array.isArray(x.post_item_ids));
+    if (prior) {
+      const ids = new Set(prior.post_item_ids);
+      state.postItems = GauriResearch.shuffle(
+        GAURI_DATA.preAssessment.concat(GAURI_DATA.postAssessment).filter(q => ids.has(q.id)));
+      state.linkedSessionId = prior.session_id;
+    }
+    state.postIndex = 0;
+    state.postResponses = [];
+    state.classroomPostVotes = {};
+    navigate("post-assessment");
+    renderPostQuestion();
+  }
+
+  // After the Pre check: the learning group goes to the stories; the comparison group skips them.
+  function afterPre() {
+    if (state.group === "comparison") navigate("wait");
+    else navigate("hub");
   }
 
   // =========================================================================
   // PRE-ASSESSMENT FLOW
   // =========================================================================
   function renderPreQuestion() {
-    const q = GAURI_DATA.preAssessment[state.preIndex];
+    const q = state.preItems[state.preIndex];
     if (!q) {
-      navigate("hub");
+      afterPre();
       return;
     }
 
     const stepEl = document.getElementById("pre-step-num");
     if (stepEl) stepEl.textContent = state.preIndex + 1;
+    setStepTotals();
     
     const iconEl = document.getElementById("pre-icon");
     if (iconEl) iconEl.textContent = q.icon;
@@ -300,7 +400,7 @@ const GauriEngine = (function () {
     if (!list) return;
     list.innerHTML = "";
 
-    q.choices.forEach((c, idx) => {
+    orderedChoices(q).forEach((c, idx) => {
       const row = document.createElement("div");
       row.className = "choice-row-wrapper card-pop";
       row.style.animationDelay = `${idx * 0.08}s`;
@@ -354,7 +454,7 @@ const GauriEngine = (function () {
     state.isProcessingClick = true;
     setTimeout(() => { state.isProcessingClick = false; }, 300);
 
-    const q = GAURI_DATA.preAssessment[state.preIndex];
+    const q = state.preItems[state.preIndex];
     if (!q) return;
 
     // Record classroom poll tally
@@ -368,21 +468,24 @@ const GauriEngine = (function () {
     state.preResponses.push({
       response_id: `resp_pre_${Date.now()}_${state.preIndex}`,
       question_id: q.id,
+      pair: q.pair || null,
+      form: q.id.startsWith("pre_") ? "A" : "B",
       category: q.category,
       mode: "classroom",
       vote_distribution: { ...state.currentVotes },
       total_votes: totalVotes,
       safe_votes: safeVotes,
       safe_ratio: totalVotes > 0 ? (safeVotes / totalVotes) : 0,
+      skills_tested: testedSkills(q),
       timestamp: new Date().toISOString()
     });
 
     state.preIndex++;
-    if (state.preIndex < GAURI_DATA.preAssessment.length) {
+    if (state.preIndex < state.preItems.length) {
       renderPreQuestion();
     } else {
       playGentleChime();
-      navigate("hub");
+      afterPre();
     }
   }
 
@@ -392,7 +495,7 @@ const GauriEngine = (function () {
     setTimeout(() => { state.isProcessingClick = false; }, 300);
 
     playClick();
-    const q = GAURI_DATA.preAssessment[state.preIndex];
+    const q = state.preItems[state.preIndex];
     if (!q) return;
 
     const choice = q.choices.find(c => c.id === choiceId) || q.choices[0];
@@ -401,47 +504,183 @@ const GauriEngine = (function () {
     state.preResponses.push({
       response_id: `resp_pre_${Date.now()}_${state.preIndex}`,
       question_id: q.id,
+      pair: q.pair || null,
+      form: q.id.startsWith("pre_") ? "A" : "B",
       category: q.category,
       mode: "individual",
       selected_choice_id: choice.id,
       selected_text: choice.text_en,
       is_safe: choice.isSafe === true,
-      skills_awarded: { ...choice.skills },
+      skills_awarded: skillsEarned(q, choice),
+      skills_tested: testedSkills(q),
       timestamp: new Date().toISOString()
     });
 
     state.preIndex++;
-    if (state.preIndex < GAURI_DATA.preAssessment.length) {
+    if (state.preIndex < state.preItems.length) {
       renderPreQuestion();
     } else {
       playGentleChime();
-      navigate("hub");
+      afterPre();
     }
   }
 
   // =========================================================================
   // SCENARIO SELECTION HUB
   // =========================================================================
-  function renderHub() {
-    const grid = document.getElementById("scenario-cards-grid");
-    if (!grid) return;
-    grid.innerHTML = "";
+  // Swipeable story slider state
+  const carousel = { bound: false, dragging: false, moved: false, startX: 0, startScroll: 0, raf: null, focusIndex: 0 };
 
-    GAURI_DATA.learningScenarios.forEach((story, idx) => {
+  function getTrack() {
+    return document.getElementById("scenario-cards-grid");
+  }
+
+  function cardStep(track) {
+    const card = track.querySelector(".story-card");
+    if (!card) return 300;
+    const cs = getComputedStyle(track);
+    const gap = parseFloat(cs.columnGap || cs.gap) || 16;
+    return card.getBoundingClientRect().width + gap;
+  }
+
+  function activeCardIndex(track) {
+    const cards = track.querySelectorAll(".story-card");
+    if (!cards.length) return 0;
+    const mid = track.getBoundingClientRect().left + track.clientWidth / 2;
+    let best = 0;
+    let bestDist = Infinity;
+    cards.forEach((c, i) => {
+      const r = c.getBoundingClientRect();
+      const d = Math.abs(r.left + r.width / 2 - mid);
+      if (d < bestDist) { bestDist = d; best = i; }
+    });
+    return best;
+  }
+
+  function goToStory(index, smooth) {
+    const track = getTrack();
+    if (!track) return;
+    const cards = track.querySelectorAll(".story-card");
+    const i = Math.max(0, Math.min(cards.length - 1, index));
+    const card = cards[i];
+    if (!card) return;
+    // position relative to the scrolling track itself (offsetLeft would be relative to the wrapper)
+    const cardLeft = card.getBoundingClientRect().left - track.getBoundingClientRect().left + track.scrollLeft;
+    const target = cardLeft - (track.clientWidth - card.getBoundingClientRect().width) / 2;
+    track.scrollTo({ left: Math.max(0, target), behavior: smooth ? "smooth" : "auto" });
+  }
+
+  function slideStories(dir) {
+    const track = getTrack();
+    if (!track) return;
+    playClick();
+    goToStory(activeCardIndex(track) + dir, true);
+  }
+
+  function updateCarouselUI() {
+    const track = getTrack();
+    if (!track) return;
+    const cards = track.querySelectorAll(".story-card");
+    const total = cards.length;
+    if (!total) return;
+    const idx = activeCardIndex(track);
+    carousel.focusIndex = idx;
+
+    cards.forEach((c, i) => c.classList.toggle("is-active", i === idx));
+
+    document.querySelectorAll("#carousel-dots .carousel-dot").forEach((d, i) => {
+      d.classList.toggle("active", i === idx);
+      d.setAttribute("aria-selected", i === idx ? "true" : "false");
+    });
+
+    const prev = document.getElementById("carousel-prev");
+    const next = document.getElementById("carousel-next");
+    if (prev) prev.disabled = idx <= 0;
+    if (next) next.disabled = idx >= total - 1;
+
+    const done = GAURI_DATA.learningScenarios.filter(s => state.completedStories.has(s.id)).length;
+    const prog = document.getElementById("carousel-progress");
+    if (prog) {
+      prog.textContent = state.lang === "en"
+        ? `Story ${idx + 1} of ${total}  ·  ${done} explored`
+        : `कहानी ${idx + 1} / ${total}  ·  ${done} पूरी`;
+    }
+  }
+
+  function bindCarouselOnce(track) {
+    if (carousel.bound) return;
+    carousel.bound = true;
+
+    track.addEventListener("scroll", () => {
+      if (carousel.raf) return;
+      carousel.raf = requestAnimationFrame(() => {
+        carousel.raf = null;
+        updateCarouselUI();
+      });
+    }, { passive: true });
+
+    // Mouse drag-to-scroll (touch devices already swipe natively)
+    track.addEventListener("mousedown", (e) => {
+      if (e.button !== 0) return;
+      carousel.dragging = true;
+      carousel.moved = false;
+      carousel.startX = e.clientX;
+      carousel.startScroll = track.scrollLeft;
+    });
+    window.addEventListener("mousemove", (e) => {
+      if (!carousel.dragging) return;
+      const dx = e.clientX - carousel.startX;
+      if (Math.abs(dx) > 6) {
+        carousel.moved = true;
+        track.classList.add("dragging");
+      }
+      if (carousel.moved) track.scrollLeft = carousel.startScroll - dx;
+    });
+    window.addEventListener("mouseup", () => {
+      if (!carousel.dragging) return;
+      carousel.dragging = false;
+      track.classList.remove("dragging");
+      if (carousel.moved) {
+        goToStory(activeCardIndex(track), true);
+        setTimeout(() => { carousel.moved = false; }, 0);
+      }
+    });
+
+    // Keyboard: left / right arrows
+    track.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") { e.preventDefault(); slideStories(1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); slideStories(-1); }
+    });
+  }
+
+  function renderHub() {
+    const track = getTrack();
+    if (!track) return;
+    track.innerHTML = "";
+
+    const stories = GAURI_DATA.learningScenarios;
+    const total = stories.length;
+
+    stories.forEach((story, idx) => {
       const isCompleted = state.completedStories.has(story.id);
       const card = document.createElement("div");
       card.className = `story-card card-pop ${isCompleted ? "completed" : ""}`;
-      card.style.animationDelay = `${idx * 0.08}s`;
+      card.style.animationDelay = `${Math.min(idx, 5) * 0.06}s`;
+      card.setAttribute("role", "listitem");
+      card.setAttribute("tabindex", "0");
 
       const tag = state.lang === "en" ? story.tag_en : story.tag_hi;
       const title = state.lang === "en" ? story.title_en : story.title_hi;
       const desc = state.lang === "en" ? story.desc_en : story.desc_hi;
-      const statusText = isCompleted 
-        ? (state.lang === "en" ? "✓ Completed" : "✓ पूर्ण")
+      const statusText = isCompleted
+        ? (state.lang === "en" ? "✓ Completed · Play again" : "✓ पूर्ण · फिर खेलें")
         : (state.lang === "en" ? "Explore Story ➔" : "कहानी शुरू करें ➔");
 
       card.innerHTML = `
-        <div class="story-icon">${story.icon}</div>
+        <div class="story-card-top">
+          <div class="story-icon">${story.icon}</div>
+          <div class="story-number">${idx + 1} / ${total}</div>
+        </div>
         <div class="story-tag">${escapeHtml(tag)}</div>
         <h3 class="story-title">${escapeHtml(title)}</h3>
         <p class="story-desc">${escapeHtml(desc)}</p>
@@ -451,9 +690,40 @@ const GauriEngine = (function () {
         </div>
       `;
 
-      card.onclick = () => openStory(story);
-      grid.appendChild(card);
+      card.onclick = () => {
+        if (carousel.moved) return; // ignore the click that ends a mouse-drag
+        // Tapping a side card first brings it to the centre if it is mostly off-screen
+        openStory(story);
+      };
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openStory(story); }
+      });
+      track.appendChild(card);
     });
+
+    // Dots (one per story)
+    const dots = document.getElementById("carousel-dots");
+    if (dots) {
+      dots.innerHTML = "";
+      stories.forEach((story, idx) => {
+        const d = document.createElement("button");
+        d.type = "button";
+        d.className = `carousel-dot ${state.completedStories.has(story.id) ? "done" : ""}`;
+        d.setAttribute("role", "tab");
+        d.setAttribute("aria-label", `${idx + 1}: ${state.lang === "en" ? story.title_en : story.title_hi}`);
+        d.onclick = () => { playClick(); goToStory(idx, true); };
+        dots.appendChild(d);
+      });
+    }
+
+    bindCarouselOnce(track);
+
+    // Return to the story the child was on (or the next one after finishing a story)
+    let focus = carousel.focusIndex || 0;
+    const here = stories[focus];
+    if (here && state.completedStories.has(here.id) && focus < total - 1) focus += 1;
+    goToStory(focus, false);
+    updateCarouselUI();
 
     const postBtn = document.getElementById("proceed-post-btn");
     if (postBtn) {
@@ -465,6 +735,8 @@ const GauriEngine = (function () {
   // INTERACTIVE ANIMATED GAME STAGE
   // =========================================================================
   function openStory(story) {
+    const openedIdx = GAURI_DATA.learningScenarios.findIndex(x => x.id === story.id);
+    if (openedIdx >= 0) carousel.focusIndex = openedIdx;
     state.activeStory = story;
     state.activeChoice = null;
     navigate("game");
@@ -486,7 +758,10 @@ const GauriEngine = (function () {
         school: { icon: "🏫", en: "School Safety Zone", hi: "विद्यालय सुरक्षा परिसर" },
         room: { icon: "💻", en: "Digital Space & Home", hi: "डिजिटल कक्ष एवं घर" },
         mall: { icon: "🛍️", en: "Public Atrium & Mall", hi: "सार्वजनिक मॉल" },
-        living_room: { icon: "🛋️", en: "Living Room Space", hi: "बैठक कक्ष" }
+        living_room: { icon: "🛋️", en: "Living Room Space", hi: "बैठक कक्ष" },
+        park: { icon: "🌳", en: "Park & Playground", hi: "पार्क एवं खेल का मैदान" },
+        street: { icon: "🚦", en: "Road & Zebra Crossing", hi: "सड़क एवं ज़ेबरा क्रॉसिंग" },
+        doorstep: { icon: "🚪", en: "Home Doorway", hi: "घर का दरवाज़ा" }
       };
       const curLoc = locMap[story.env] || { icon: "📍", en: "Story Scene", hi: "घटना स्थल" };
       locIcon.textContent = curLoc.icon;
@@ -699,6 +974,140 @@ const GauriEngine = (function () {
           <line x1="600" y1="220" x2="700" y2="380" stroke="#CBD5E1" stroke-width="1.5" />
         </svg>
       `;
+    } else if (envType === "park") {
+      backdrop.innerHTML = `
+        <svg viewBox="0 0 800 380" width="100%" height="100%" preserveAspectRatio="none" style="position: absolute; top: 0; left: 0;">
+          <defs>
+            <linearGradient id="sky_park" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#BAE6FD" />
+              <stop offset="100%" stop-color="#ECFDF5" />
+            </linearGradient>
+          </defs>
+          <rect width="800" height="250" fill="url(#sky_park)" />
+          <circle cx="90" cy="60" r="30" fill="#FDE68A" opacity="0.9" />
+          <ellipse cx="260" cy="70" rx="60" ry="16" fill="#FFFFFF" opacity="0.8" />
+          <ellipse cx="620" cy="50" rx="70" ry="18" fill="#FFFFFF" opacity="0.8" />
+          <!-- Rolling hills -->
+          <ellipse cx="200" cy="250" rx="260" ry="70" fill="#86EFAC" opacity="0.7" />
+          <ellipse cx="600" cy="255" rx="280" ry="75" fill="#4ADE80" opacity="0.6" />
+          <!-- Trees -->
+          <rect x="58" y="150" width="14" height="90" fill="#78350F" />
+          <circle cx="65" cy="140" r="48" fill="#22C55E" />
+          <rect x="738" y="160" width="12" height="80" fill="#78350F" />
+          <circle cx="744" cy="150" r="42" fill="#16A34A" />
+          <!-- School boundary wall -->
+          <rect x="520" y="165" width="200" height="75" fill="#FCA5A5" stroke="#B91C1C" stroke-width="2" rx="3" />
+          <line x1="520" y1="190" x2="720" y2="190" stroke="#B91C1C" stroke-width="1.5" />
+          <line x1="520" y1="215" x2="720" y2="215" stroke="#B91C1C" stroke-width="1.5" />
+          <line x1="580" y1="165" x2="580" y2="190" stroke="#B91C1C" stroke-width="1.5" />
+          <line x1="650" y1="190" x2="650" y2="215" stroke="#B91C1C" stroke-width="1.5" />
+          <!-- Swings -->
+          <rect x="190" y="150" width="130" height="8" fill="#92400E" rx="3" />
+          <line x1="190" y1="154" x2="175" y2="245" stroke="#92400E" stroke-width="6" stroke-linecap="round" />
+          <line x1="320" y1="154" x2="335" y2="245" stroke="#92400E" stroke-width="6" stroke-linecap="round" />
+          <line x1="225" y1="158" x2="225" y2="215" stroke="#475569" stroke-width="2" />
+          <line x1="285" y1="158" x2="285" y2="215" stroke="#475569" stroke-width="2" />
+          <rect x="212" y="213" width="26" height="7" fill="#F97316" rx="3" />
+          <rect x="272" y="213" width="26" height="7" fill="#F97316" rx="3" />
+          <!-- Bushes -->
+          <ellipse cx="430" cy="236" rx="46" ry="26" fill="#15803D" />
+          <ellipse cx="470" cy="240" rx="38" ry="22" fill="#16A34A" />
+          <!-- Grass ground and path -->
+          <rect y="240" width="800" height="140" fill="#86EFAC" />
+          <path d="M 250 380 Q 400 290 560 380 Z" fill="#E7D8B8" />
+        </svg>
+      `;
+    } else if (envType === "street") {
+      backdrop.innerHTML = `
+        <svg viewBox="0 0 800 380" width="100%" height="100%" preserveAspectRatio="none" style="position: absolute; top: 0; left: 0;">
+          <defs>
+            <linearGradient id="sky_street" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#BFDBFE" />
+              <stop offset="100%" stop-color="#FEF3C7" />
+            </linearGradient>
+            <linearGradient id="road_street" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#64748B" />
+              <stop offset="100%" stop-color="#334155" />
+            </linearGradient>
+          </defs>
+          <rect width="800" height="200" fill="url(#sky_street)" />
+          <!-- Buildings -->
+          <rect x="30" y="70" width="110" height="130" fill="#FDBA74" rx="3" />
+          <rect x="150" y="40" width="90" height="160" fill="#A5B4FC" rx="3" />
+          <rect x="560" y="55" width="100" height="145" fill="#FCA5A5" rx="3" />
+          <rect x="670" y="85" width="110" height="115" fill="#86EFAC" rx="3" />
+          <g fill="#FFFFFF" opacity="0.85">
+            <rect x="48" y="90" width="22" height="26" rx="2" /><rect x="88" y="90" width="22" height="26" rx="2" />
+            <rect x="48" y="135" width="22" height="26" rx="2" /><rect x="88" y="135" width="22" height="26" rx="2" />
+            <rect x="166" y="60" width="22" height="26" rx="2" /><rect x="200" y="60" width="22" height="26" rx="2" />
+            <rect x="578" y="75" width="22" height="26" rx="2" /><rect x="618" y="75" width="22" height="26" rx="2" />
+            <rect x="690" y="105" width="22" height="26" rx="2" /><rect x="735" y="105" width="22" height="26" rx="2" />
+          </g>
+          <!-- Pavement -->
+          <rect y="200" width="800" height="40" fill="#E2E8F0" />
+          <!-- Road -->
+          <rect y="240" width="800" height="140" fill="url(#road_street)" />
+          <line x1="0" y1="310" x2="800" y2="310" stroke="#FEF08A" stroke-width="3" stroke-dasharray="26 18" opacity="0.8" />
+          <!-- Zebra crossing -->
+          <g fill="#FFFFFF" opacity="0.9">
+            <rect x="300" y="244" width="30" height="132" rx="3" />
+            <rect x="350" y="244" width="30" height="132" rx="3" />
+            <rect x="400" y="244" width="30" height="132" rx="3" />
+            <rect x="450" y="244" width="30" height="132" rx="3" />
+            <rect x="500" y="244" width="30" height="132" rx="3" />
+          </g>
+          <!-- Traffic light -->
+          <rect x="595" y="70" width="10" height="130" fill="#475569" />
+          <rect x="580" y="30" width="40" height="80" fill="#1E293B" rx="8" />
+          <circle cx="600" cy="48" r="9" fill="#7F1D1D" />
+          <circle cx="600" cy="70" r="9" fill="#78350F" />
+          <circle cx="600" cy="92" r="9" fill="#22C55E" />
+          <!-- Parked cars at the kerb (far left, parked and still) -->
+          <rect x="30" y="215" width="120" height="34" rx="9" fill="#3B82F6" />
+          <rect x="52" y="200" width="70" height="22" rx="8" fill="#93C5FD" />
+          <circle cx="58" cy="250" r="9" fill="#1E293B" /><circle cx="124" cy="250" r="9" fill="#1E293B" />
+        </svg>
+      `;
+    } else if (envType === "doorstep") {
+      backdrop.innerHTML = `
+        <svg viewBox="0 0 800 380" width="100%" height="100%" preserveAspectRatio="none" style="position: absolute; top: 0; left: 0;">
+          <defs>
+            <linearGradient id="wall_door" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FDE68A" />
+              <stop offset="100%" stop-color="#FCD34D" />
+            </linearGradient>
+          </defs>
+          <rect width="800" height="250" fill="url(#wall_door)" />
+          <!-- Window with curtains -->
+          <rect x="60" y="50" width="110" height="120" fill="#BAE6FD" stroke="#B45309" stroke-width="3" rx="4" />
+          <line x1="115" y1="50" x2="115" y2="170" stroke="#B45309" stroke-width="2" />
+          <polygon points="52,42 90,42 66,176 52,176" fill="#DC2626" opacity="0.85" />
+          <polygon points="178,42 140,42 164,176 178,176" fill="#DC2626" opacity="0.85" />
+          <!-- Front door -->
+          <rect x="300" y="20" width="200" height="235" fill="#92400E" stroke="#78350F" stroke-width="5" rx="6" />
+          <rect x="325" y="45" width="68" height="80" fill="#B45309" rx="4" />
+          <rect x="407" y="45" width="68" height="80" fill="#B45309" rx="4" />
+          <rect x="325" y="140" width="68" height="90" fill="#B45309" rx="4" />
+          <rect x="407" y="140" width="68" height="90" fill="#B45309" rx="4" />
+          <circle cx="400" cy="75" r="9" fill="#E2E8F0" stroke="#475569" stroke-width="2" />
+          <circle cx="400" cy="75" r="3" fill="#1E293B" />
+          <rect x="470" y="150" width="10" height="38" fill="#FDE68A" rx="3" stroke="#CA8A04" />
+          <!-- Safety chain -->
+          <path d="M 330 120 Q 345 138 360 120" stroke="#CBD5E1" stroke-width="3" fill="none" />
+          <rect x="326" y="114" width="8" height="12" fill="#94A3B8" rx="2" />
+          <!-- Shoe rack -->
+          <rect x="600" y="180" width="130" height="70" fill="#78350F" rx="4" />
+          <rect x="608" y="188" width="50" height="14" fill="#F87171" rx="6" />
+          <rect x="668" y="188" width="50" height="14" fill="#60A5FA" rx="6" />
+          <rect x="608" y="220" width="50" height="14" fill="#FBBF24" rx="6" />
+          <!-- Floor and doormat -->
+          <rect y="250" width="800" height="130" fill="#D6A76B" />
+          <line x1="0" y1="300" x2="800" y2="300" stroke="#A16207" stroke-width="1.5" />
+          <line x1="0" y1="345" x2="800" y2="345" stroke="#A16207" stroke-width="1.5" />
+          <rect x="330" y="262" width="140" height="34" fill="#0D9488" rx="6" />
+          <text x="400" y="285" font-size="15" font-weight="bold" fill="#FFFFFF" text-anchor="middle">WELCOME</text>
+        </svg>
+      `;
     } else {
       // living_room
       backdrop.innerHTML = `
@@ -789,7 +1198,19 @@ const GauriEngine = (function () {
       if (headingEl) headingEl.textContent = state.lang === "en" ? choice.guidanceTitle_en : choice.guidanceTitle_hi;
 
       const bodyEl = document.getElementById("guidance-body-text");
-      if (bodyEl) bodyEl.textContent = state.lang === "en" ? choice.guidanceBody_en : choice.guidanceBody_hi;
+      if (bodyEl) {
+        const bodyText = state.lang === "en" ? choice.guidanceBody_en : choice.guidanceBody_hi;
+        const phrase = state.lang === "en" ? story.practice_en : story.practice_hi;
+        let html = escapeHtml(bodyText);
+        // Rehearsal step: children say the safe response out loud (active practice, not just reading)
+        if (choice.rating === "safe" && phrase) {
+          const label = state.lang === "en" ? "🗣️ Practise saying it out loud:" : "🗣️ ज़ोर से बोलकर अभ्यास करें:";
+          const doneLabel = state.lang === "en" ? "✅ I said it out loud" : "✅ मैंने ज़ोर से बोला";
+          html += `<div class="guidance-practice"><span class="practice-label">${label}</span> <span class="practice-phrase">“${escapeHtml(phrase)}”</span>
+            <button type="button" class="rehearse-btn" onclick="GauriEngine.markRehearsed('${story.id}', this)">${doneLabel}</button></div>`;
+        }
+        bodyEl.innerHTML = html;
+      }
 
       const iconEl = document.getElementById("guidance-status-icon");
       if (iconEl) iconEl.textContent = choice.rating === "safe" ? "⭐" : "🌱";
@@ -814,6 +1235,16 @@ const GauriEngine = (function () {
     }, 400);
   }
 
+  // Rehearsal: research says children must PRACTISE the skill (say it, act it), not just read it.
+  function markRehearsed(storyId, btn) {
+    playSuccess();
+    state.rehearsals.push({ scenario_id: storyId, timestamp: new Date().toISOString() });
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = state.lang === "en" ? "✔ Well done!" : "✔ शाबाश!";
+    }
+  }
+
   // =========================================================================
   // POST-ASSESSMENT FLOW
   // =========================================================================
@@ -827,7 +1258,7 @@ const GauriEngine = (function () {
   }
 
   function renderPostQuestion() {
-    const q = GAURI_DATA.postAssessment[state.postIndex];
+    const q = state.postItems[state.postIndex];
     if (!q) {
       finalizeSession();
       playGentleChime();
@@ -837,6 +1268,7 @@ const GauriEngine = (function () {
 
     const stepEl = document.getElementById("post-step-num");
     if (stepEl) stepEl.textContent = state.postIndex + 1;
+    setStepTotals();
 
     const iconEl = document.getElementById("post-icon");
     if (iconEl) iconEl.textContent = q.icon;
@@ -859,7 +1291,7 @@ const GauriEngine = (function () {
     if (!list) return;
     list.innerHTML = "";
 
-    q.choices.forEach((c, idx) => {
+    orderedChoices(q).forEach((c, idx) => {
       const row = document.createElement("div");
       row.className = "choice-row-wrapper card-pop";
       row.style.animationDelay = `${idx * 0.08}s`;
@@ -897,7 +1329,7 @@ const GauriEngine = (function () {
     state.isProcessingClick = true;
     setTimeout(() => { state.isProcessingClick = false; }, 300);
 
-    const q = GAURI_DATA.postAssessment[state.postIndex];
+    const q = state.postItems[state.postIndex];
     if (!q) return;
 
     state.classroomPostVotes[q.id] = { ...state.currentVotes };
@@ -909,17 +1341,20 @@ const GauriEngine = (function () {
     state.postResponses.push({
       response_id: `resp_post_${Date.now()}_${state.postIndex}`,
       question_id: q.id,
+      pair: q.pair || null,
+      form: q.id.startsWith("pre_") ? "A" : "B",
       category: q.category,
       mode: "classroom",
       vote_distribution: { ...state.currentVotes },
       total_votes: totalVotes,
       safe_votes: safeVotes,
       safe_ratio: totalVotes > 0 ? (safeVotes / totalVotes) : 0,
+      skills_tested: testedSkills(q),
       timestamp: new Date().toISOString()
     });
 
     state.postIndex++;
-    if (state.postIndex < GAURI_DATA.postAssessment.length) {
+    if (state.postIndex < state.postItems.length) {
       renderPostQuestion();
     } else {
       finalizeSession();
@@ -934,7 +1369,7 @@ const GauriEngine = (function () {
     setTimeout(() => { state.isProcessingClick = false; }, 300);
 
     playClick();
-    const q = GAURI_DATA.postAssessment[state.postIndex];
+    const q = state.postItems[state.postIndex];
     if (!q) return;
 
     const choice = q.choices.find(c => c.id === choiceId) || q.choices[0];
@@ -942,17 +1377,20 @@ const GauriEngine = (function () {
     state.postResponses.push({
       response_id: `resp_post_${Date.now()}_${state.postIndex}`,
       question_id: q.id,
+      pair: q.pair || null,
+      form: q.id.startsWith("pre_") ? "A" : "B",
       category: q.category,
       mode: "individual",
       selected_choice_id: choice.id,
       selected_text: choice.text_en,
       is_safe: choice.isSafe === true,
-      skills_awarded: { ...choice.skills },
+      skills_awarded: skillsEarned(q, choice),
+      skills_tested: testedSkills(q),
       timestamp: new Date().toISOString()
     });
 
     state.postIndex++;
-    if (state.postIndex < GAURI_DATA.postAssessment.length) {
+    if (state.postIndex < state.postItems.length) {
       renderPostQuestion();
     } else {
       finalizeSession();
@@ -968,6 +1406,26 @@ const GauriEngine = (function () {
     if (state.isSessionFinalized) return;
     state.isSessionFinalized = true;
 
+    if (state.sessionType === "followup") {
+      const rec = computeSessionSummary(state);
+      const list = getFollowups();
+      list.unshift({
+        followup_id: `fu_${Date.now()}`,
+        participant_id: state.participantId,
+        institution: state.institution,
+        mode: state.mode,
+        age_group: state.ageGroup,
+        date_time: new Date().toLocaleString(),
+        timestamp: new Date().toISOString(),
+        followup_pct: rec.post_score_pct,
+        n_items: state.postResponses.length,
+        linked_session_id: state.linkedSessionId,
+        skill_analysis: rec.skill_analysis
+      });
+      try { localStorage.setItem(STORAGE_KEY_FOLLOWUPS, JSON.stringify(list)); } catch (e) { /* storage blocked */ }
+      return;
+    }
+
     const sessionRecord = computeSessionSummary(state);
     
     // Append to LocalStorage Master Roster
@@ -978,6 +1436,10 @@ const GauriEngine = (function () {
       existingSessions.unshift(sessionRecord);
       localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(existingSessions));
     }
+  }
+
+  function getFollowups() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY_FOLLOWUPS) || "[]"); } catch (e) { return []; }
   }
 
   function getAllStoredSessions() {
@@ -1027,13 +1489,19 @@ const GauriEngine = (function () {
       postScorePct = sumPostTotal > 0 ? Math.round((sumPostSafe / sumPostTotal) * 100) : 0;
       deltaPctPoints = postScorePct - preScorePct;
 
-      // Skill distribution for classroom
+      // Skill distribution for classroom: safe votes / all votes, only over questions that test the skill
+      const classSkillPct = (responses, k) => {
+        let safe = 0, total = 0;
+        responses.forEach(r => {
+          const tested = r.skills_tested || skillsList;
+          if (tested.includes(k)) { safe += r.safe_votes || 0; total += r.total_votes || 0; }
+        });
+        return total > 0 ? Math.round((safe / total) * 100) : 0;
+      };
       skillsList.forEach(k => {
-        skillAnalysis[k] = {
-          pre_pct: preScorePct,
-          post_pct: postScorePct,
-          delta_points: deltaPctPoints
-        };
+        const pre = classSkillPct(s.preResponses, k);
+        const post = classSkillPct(s.postResponses, k);
+        skillAnalysis[k] = { pre_pct: pre, post_pct: post, delta_points: post - pre };
       });
     } else {
       // Individual Student Mode Computation
@@ -1044,30 +1512,22 @@ const GauriEngine = (function () {
       postScorePct = numPost > 0 ? Math.round((safePostCount / numPost) * 100) : 0;
       deltaPctPoints = postScorePct - preScorePct;
 
-      // Skill Breakdown Calculation
+      // Skill Breakdown: for each skill, correct answers / questions that TEST that skill
+      const indSkillPct = (responses, k) => {
+        let got = 0, max = 0;
+        responses.forEach(r => {
+          const tested = r.skills_tested || skillsList;
+          if (tested.includes(k)) {
+            max += 1;
+            if (r.skills_awarded && r.skills_awarded[k]) got += r.skills_awarded[k];
+          }
+        });
+        return max > 0 ? Math.round((got / max) * 100) : 0;
+      };
       skillsList.forEach(k => {
-        let preSum = 0;
-        let preMax = 0;
-        s.preResponses.forEach(r => {
-          preMax += 1;
-          if (r.skills_awarded && r.skills_awarded[k]) preSum += r.skills_awarded[k];
-        });
-
-        let postSum = 0;
-        let postMax = 0;
-        s.postResponses.forEach(r => {
-          postMax += 1;
-          if (r.skills_awarded && r.skills_awarded[k]) postSum += r.skills_awarded[k];
-        });
-
-        const preSkillPct = preMax > 0 ? Math.round((preSum / preMax) * 100) : 0;
-        const postSkillPct = postMax > 0 ? Math.round((postSum / postMax) * 100) : 0;
-
-        skillAnalysis[k] = {
-          pre_pct: preSkillPct,
-          post_pct: postSkillPct,
-          delta_points: postSkillPct - preSkillPct
-        };
+        const preSkillPct = indSkillPct(s.preResponses, k);
+        const postSkillPct = indSkillPct(s.postResponses, k);
+        skillAnalysis[k] = { pre_pct: preSkillPct, post_pct: postSkillPct, delta_points: postSkillPct - preSkillPct };
       });
     }
 
@@ -1083,8 +1543,25 @@ const GauriEngine = (function () {
       if (p < minPost) { minPost = p; weakestSkill = k; }
     });
 
+    // Formative data from the stories (first try = what the child chose BEFORE any feedback)
+    const firstTry = {};
+    (s.learningResponses || []).forEach(r => { if (!(r.scenario_id in firstTry)) firstTry[r.scenario_id] = !!r.is_safe; });
+    const ftIds = Object.keys(firstTry);
+    const firstTrySafePct = ftIds.length ? Math.round(ftIds.filter(i => firstTry[i]).length / ftIds.length * 100) : null;
+
     return {
       session_id: s.sessionId || `sess_${Date.now()}`,
+      group: s.group || "learning",
+      form_order: s.formOrder || "AB",
+      assessment_length: s.length || "full",
+      n_items_pre: numPre,
+      n_items_post: numPost,
+      pre_item_ids: (s.preItems || []).map(q => q.id),
+      post_item_ids: (s.postItems || []).map(q => q.id),
+      stories_completed: s.completedStories ? s.completedStories.size : 0,
+      first_try_safe_pct: firstTrySafePct,
+      rehearsal_count: (s.rehearsals || []).length,
+      reliable_change_pts: GauriResearch.reliableChange(numPost),
       timestamp: s.startedAt || new Date().toISOString(),
       dateTime: new Date().toLocaleString(),
       institution: s.institution || "Fellowship Pilot School",
@@ -1130,9 +1607,11 @@ const GauriEngine = (function () {
     const individualSessions = allSessions.filter(s => s.mode === "individual");
     const classroomSessions = allSessions.filter(s => s.mode === "classroom");
 
+    // Average change uses only sessions that have BOTH a Pre and a Post (follow-ups are stored separately)
+    const completeSessions = allSessions.filter(s => s.has_pre && s.has_post);
     let totalDelta = 0;
-    allSessions.forEach(s => { totalDelta += s.delta_pct_points || 0; });
-    const avgGrowth = totalParticipants > 0 ? Math.round(totalDelta / totalParticipants) : 0;
+    completeSessions.forEach(s => { totalDelta += s.delta_pct_points || 0; });
+    const avgGrowth = completeSessions.length > 0 ? Math.round(totalDelta / completeSessions.length) : 0;
 
     // Overview Stats
     const totalPartEl = document.getElementById("stat-total-participants");
@@ -1146,7 +1625,7 @@ const GauriEngine = (function () {
 
     const avgGrowthEl = document.getElementById("stat-avg-growth");
     if (avgGrowthEl) {
-      if (totalParticipants > 0) {
+      if (completeSessions.length > 0) {
         avgGrowthEl.textContent = `${avgGrowth >= 0 ? "+" : ""}${avgGrowth}%`;
         avgGrowthEl.classList.add("highlight-green");
       } else {
@@ -1169,6 +1648,268 @@ const GauriEngine = (function () {
 
     // 5. Render Practical Life Competencies
     renderLifeCompetencies();
+
+    // 6. Evidence check, item analysis, retention, behaviour observation
+    renderEvidencePanel(allSessions);
+    renderItemAnalysis(allSessions);
+    renderRetentionPanel(allSessions);
+    renderObservationTab();
+  }
+
+  // =========================================================================
+  // EVIDENCE CHECK: honest statistics on the Overview tab
+  // =========================================================================
+  function fmtPts(x) {
+    if (x === undefined || x === null || isNaN(x)) return "–";
+    const r = Math.round(x * 10) / 10;
+    return `${r >= 0 ? "+" : ""}${r}`;
+  }
+
+  function evidenceRow(label, list) {
+    const sm = GauriResearch.summarise(list.map(s => s.delta_pct_points));
+    if (!sm.n) return `<tr><td>${label}</td><td>0</td><td colspan="5" class="muted-cell">No children recorded yet</td></tr>`;
+    const meanPre = Math.round(list.reduce((a, s) => a + s.pre_score_pct, 0) / sm.n);
+    const meanPost = Math.round(list.reduce((a, s) => a + s.post_score_pct, 0) / sm.n);
+    const up = list.filter(s => s.delta_pct_points > 0).length;
+    const same = list.filter(s => s.delta_pct_points === 0).length;
+    const down = list.filter(s => s.delta_pct_points < 0).length;
+    const ci = sm.n >= 2 ? `${fmtPts(sm.mean)} (${fmtPts(sm.lo)} to ${fmtPts(sm.hi)})` : `${fmtPts(sm.mean)} (need 2+ children)`;
+    const dz = isNaN(sm.dz) ? "–" : (Math.round(sm.dz * 100) / 100);
+    return `<tr><td>${label}</td><td>${sm.n}</td><td>${meanPre}%</td><td>${meanPost}%</td><td><strong>${ci}</strong></td><td>${up} ↑ / ${same} = / ${down} ↓</td><td>${dz}</td></tr>`;
+  }
+
+  function renderEvidencePanel(allSessions) {
+    const el = document.getElementById("evidence-container");
+    if (!el) return;
+    const ind = allSessions.filter(s => s.mode === "individual" && s.has_pre && s.has_post);
+    const grp = g => ind.filter(s => (s.group || "learning") === g);
+    const L = grp("learning"), C = grp("comparison");
+
+    if (ind.length === 0) {
+      el.innerHTML = `<div class="empty-state-card"><p>No individual children recorded yet. Run a few children through Pre → Stories → Post (and, if you can, a few in the <em>Comparison group</em>) to see the evidence check.</p></div>`;
+      return;
+    }
+
+    const msgs = [];
+    const smL = GauriResearch.summarise(L.map(s => s.delta_pct_points));
+    const smC = GauriResearch.summarise(C.map(s => s.delta_pct_points));
+    const cmp = GauriResearch.compareGroups(L.map(s => s.delta_pct_points), C.map(s => s.delta_pct_points));
+
+    if (L.length < 10) msgs.push({ t: "warn", x: `Only ${L.length} learning-group child${L.length === 1 ? "" : "ren"} so far. Treat everything here as a <strong>pilot</strong>; aim for 20+ per group before drawing conclusions.` });
+    if (smL.n >= 2) {
+      msgs.push({ t: smL.lo > 0 ? "good" : "info", x: smL.lo > 0
+        ? `Learning group: stated safe choices rose by ${fmtPts(smL.mean)} points on average and the 95% interval (${fmtPts(smL.lo)} to ${fmtPts(smL.hi)}) is above zero.`
+        : `Learning group: average change ${fmtPts(smL.mean)} points, but the 95% interval (${fmtPts(smL.lo)} to ${fmtPts(smL.hi)}) includes zero, so "no real change" cannot be ruled out yet.` });
+    }
+    if (cmp) {
+      msgs.push({ t: cmp.lo > 0 ? "good" : "info", x: cmp.lo > 0
+        ? `Learning group improved <strong>${fmtPts(cmp.diff)} points more</strong> than the comparison group (95% interval ${fmtPts(cmp.lo)} to ${fmtPts(cmp.hi)}). That is the stronger evidence, because repeating the test alone does not explain it.`
+        : `Learning vs comparison: difference ${fmtPts(cmp.diff)} points (95% interval ${fmtPts(cmp.lo)} to ${fmtPts(cmp.hi)}) includes zero, so the stories cannot yet be told apart from simply repeating the test.` });
+    } else {
+      msgs.push({ t: "warn", x: `<strong>No comparison group yet.</strong> Without one, a rise could just be practice from seeing similar questions twice. Run some children in <em>Comparison group</em> mode (Pre → Post with no stories) to check.` });
+    }
+    const meanPreAll = ind.reduce((a, s) => a + s.pre_score_pct, 0) / ind.length;
+    if (meanPreAll >= 85) msgs.push({ t: "warn", x: `Average Pre score is already ${Math.round(meanPreAll)}%: children start near the top, so there is little room to improve (ceiling effect). Use harder items or an older group.` });
+    const lens = [...new Set(ind.map(s => s.n_items_post || 12))].sort((a, b) => a - b);
+    const rcText = lens.map(n => `${n} questions → about <strong>${GauriResearch.reliableChange(n)} points</strong>`).join("; ");
+    msgs.push({ t: "info", x: `One child's change must be this big to be more than chance (${rcText}). Use <strong>group averages</strong>, not one child's Δ.` });
+    msgs.push({ t: "info", x: `All scores are what children <em>say</em> they would do. Research shows this does not reliably predict real behaviour, so also use the <strong>Behaviour Observation</strong> tab.` });
+
+    el.innerHTML = `
+      <div class="timeline-table-wrapper">
+        <table class="data-table">
+          <thead><tr><th>Group</th><th>Children</th><th>Mean Pre</th><th>Mean Post</th><th>Mean change, points (95% CI)</th><th>Improved / same / worse</th><th>Effect size (dz)</th></tr></thead>
+          <tbody>
+            ${evidenceRow("Learning (did the stories)", L)}
+            ${evidenceRow("Comparison (no stories)", C)}
+          </tbody>
+        </table>
+      </div>
+      <ul class="evidence-list">${msgs.map(m => `<li class="evidence-${m.t}">${m.x}</li>`).join("")}</ul>`;
+  }
+
+  function renderRetentionPanel(allSessions) {
+    const el = document.getElementById("retention-container");
+    if (!el) return;
+    const fu = getFollowups();
+    if (!fu.length) {
+      el.innerHTML = `<div class="empty-state-card"><p>No follow-up checks yet. Weeks after the stories, choose <strong>Follow-up check</strong> on the welcome screen and enter the same Child ID. Skills fade without boosters, so this shows whether they lasted.</p></div>`;
+      return;
+    }
+    const rows = [];
+    const drops = [];
+    fu.forEach(f => {
+      const base = allSessions.find(s => s.session_id === f.linked_session_id)
+        || allSessions.find(s => s.participant_id === f.participant_id && s.mode === f.mode);
+      const post = base ? base.post_score_pct : null;
+      const pre = base ? base.pre_score_pct : null;
+      const change = post !== null ? f.followup_pct - post : null;
+      if (change !== null) drops.push(change);
+      const days = base ? Math.max(0, Math.round((new Date(f.timestamp) - new Date(base.timestamp)) / 86400000)) : "–";
+      rows.push(`<tr><td>${escapeHtml(f.participant_id)}</td><td>${pre === null ? "–" : pre + "%"}</td><td>${post === null ? "–" : post + "%"}</td><td><strong>${f.followup_pct}%</strong></td><td>${change === null ? "–" : fmtPts(change)}</td><td>${days}</td></tr>`);
+    });
+    const sm = GauriResearch.summarise(drops);
+    el.innerHTML = `
+      <div class="timeline-table-wrapper"><table class="data-table">
+        <thead><tr><th>Child</th><th>Pre</th><th>Post</th><th>Follow-up</th><th>Change since Post</th><th>Days later</th></tr></thead>
+        <tbody>${rows.join("")}</tbody></table></div>
+      ${sm.n ? `<ul class="evidence-list"><li class="evidence-info">Average change from Post to Follow-up: <strong>${fmtPts(sm.mean)} points</strong>${sm.n >= 2 ? ` (95% CI ${fmtPts(sm.lo)} to ${fmtPts(sm.hi)})` : ""}. A negative number means skills faded, so plan <strong>booster sessions</strong>.</li></ul>` : ""}`;
+  }
+
+  // Item analysis: which questions are too easy / too hard, and are Form A and Form B equally hard?
+  function renderItemAnalysis(allSessions) {
+    const el = document.getElementById("item-analysis-container");
+    if (!el) return;
+    const acc = {};   // pair -> { A:{safe,total}, B:{safe,total} }
+    const totals = { A: { safe: 0, total: 0 }, B: { safe: 0, total: 0 } };
+    const add = (pair, form, safe, total) => {
+      if (!pair || !total) return;
+      acc[pair] = acc[pair] || { A: { safe: 0, total: 0 }, B: { safe: 0, total: 0 } };
+      acc[pair][form].safe += safe; acc[pair][form].total += total;
+      totals[form].safe += safe; totals[form].total += total;
+    };
+    allSessions.forEach(s => {
+      (s.raw_pre_responses || []).concat(s.raw_post_responses || []).forEach(r => {
+        const pair = r.pair || parseInt(String(r.question_id).split("_")[1], 10);
+        const form = r.form || (String(r.question_id).startsWith("pre_") ? "A" : "B");
+        if (r.mode === "classroom") add(pair, form, r.safe_votes || 0, r.total_votes || 0);
+        else add(pair, form, r.is_safe ? 1 : 0, 1);
+      });
+    });
+    const pairs = Object.keys(acc).map(Number).sort((a, b) => a - b);
+    if (!pairs.length) { el.innerHTML = `<div class="empty-state-card"><p>No answers recorded yet.</p></div>`; return; }
+    const pct = o => o.total ? Math.round(o.safe / o.total * 100) : null;
+    const cell = o => o.total ? `${pct(o)}% <span class="muted-cell">(n=${o.total})</span>` : "–";
+    const rows = pairs.map(n => {
+      const a = acc[n].A, b = acc[n].B;
+      const flags = [];
+      [a, b].forEach(o => { if (o.total >= 5 && pct(o) >= 90) flags.push("too easy"); if (o.total >= 5 && pct(o) <= 10) flags.push("too hard"); });
+      if (a.total >= 5 && b.total >= 5 && Math.abs(pct(a) - pct(b)) > 25) flags.push("forms unequal");
+      const story = GAURI_DATA.learningScenarios[n - 1];
+      const skills = (GAURI_DATA.assessmentTests[n] || []).map(k => (GAURI_DATA.skills[k] || {}).name_en || k).join(", ");
+      return `<tr><td>${n}</td><td>${story ? escapeHtml(story.title_en) : ""}</td><td class="muted-cell">${escapeHtml(skills)}</td><td>${cell(a)}</td><td>${cell(b)}</td><td>${flags.length ? "⚠️ " + [...new Set(flags)].join(", ") : "ok"}</td></tr>`;
+    }).join("");
+    const fa = pct(totals.A), fb = pct(totals.B);
+    el.innerHTML = `
+      <div class="timeline-table-wrapper"><table class="data-table">
+        <thead><tr><th>Pair</th><th>Story</th><th>Skills tested</th><th>Form A: % safe</th><th>Form B: % safe</th><th>Check</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+      <ul class="evidence-list"><li class="evidence-info">Overall Form A ${fa === null ? "–" : fa + "%"} vs Form B ${fb === null ? "–" : fb + "%"}. Because the Pre/Post order alternates between children, any difference between the forms cancels out of the Δ. If the gap is large, rewrite the easier items.</li></ul>`;
+  }
+
+  // =========================================================================
+  // BEHAVIOUR OBSERVATION (role-play / in situ check)
+  // =========================================================================
+  function getObservations() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY_OBS) || "[]"); } catch (e) { return []; }
+  }
+
+  function updateObsScript() {
+    const sit = GauriResearch.OBS_SITUATIONS.find(x => x.id === (document.getElementById("obs-situation") || {}).value);
+    if (!sit) return;
+    const set = (id, txt) => { const e = document.getElementById(id); if (e) e.textContent = txt; };
+    set("obs-script", sit.script_en);
+    set("obs-no-label", `NO: ${sit.no_en}`);
+    set("obs-go-label", `GO: ${sit.go_en}`);
+    set("obs-tell-label", `TELL: ${sit.tell_en}`);
+  }
+
+  function renderObservationTab() {
+    const sitEl = document.getElementById("obs-situation");
+    if (sitEl && !sitEl.options.length) {
+      GauriResearch.OBS_SITUATIONS.forEach(x => sitEl.add(new Option(x.en, x.id)));
+      GauriResearch.OBS_TIMEPOINTS.forEach(x => document.getElementById("obs-timepoint").add(new Option(x.en, x.id)));
+      GauriResearch.OBS_PROMPT_LEVELS.forEach(x => document.getElementById("obs-prompt").add(new Option(x.en, x.id)));
+      updateObsScript();
+    }
+    const dl = document.getElementById("obs-participants-list");
+    if (dl) {
+      const ids = [...new Set(getAllStoredSessions().filter(s => s.mode === "individual").map(s => s.participant_id))];
+      dl.innerHTML = ids.map(i => `<option value="${escapeHtml(i)}"></option>`).join("");
+    }
+    const obs = getObservations();
+    const sumEl = document.getElementById("obs-summary");
+    const listEl = document.getElementById("obs-list");
+    if (!sumEl || !listEl) return;
+    if (!obs.length) {
+      sumEl.innerHTML = `<div class="empty-state-card"><p>No observations yet. Do a short role-play with a child (before the stories, right after, and weeks later) and record it above.</p></div>`;
+      listEl.innerHTML = "";
+      return;
+    }
+    const pct = (n, d) => d ? Math.round(n / d * 100) + "%" : "–";
+    const rows = GauriResearch.OBS_TIMEPOINTS.map(tp => {
+      const o = obs.filter(x => x.timepoint === tp.id);
+      const n = o.length;
+      const full = o.filter(x => x.no && x.go && x.tell && x.prompt === "independent").length;
+      const indep = o.filter(x => x.prompt === "independent").length;
+      return `<tr><td>${tp.en}</td><td>${n}</td><td>${pct(o.filter(x => x.no).length, n)}</td><td>${pct(o.filter(x => x.go).length, n)}</td><td>${pct(o.filter(x => x.tell).length, n)}</td><td>${pct(indep, n)}</td><td><strong>${pct(full, n)}</strong></td></tr>`;
+    }).join("");
+    sumEl.innerHTML = `<div class="timeline-table-wrapper"><table class="data-table">
+      <thead><tr><th>When</th><th>Observations</th><th>NO</th><th>GO</th><th>TELL</th><th>No prompt needed</th><th>All three, on their own</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+    const tpName = id => (GauriResearch.OBS_TIMEPOINTS.find(x => x.id === id) || {}).en || id;
+    const sitName = id => (GauriResearch.OBS_SITUATIONS.find(x => x.id === id) || {}).en || id;
+    const prName = id => (GauriResearch.OBS_PROMPT_LEVELS.find(x => x.id === id) || {}).en || id;
+    listEl.innerHTML = `<div class="timeline-table-wrapper"><table class="data-table">
+      <thead><tr><th>Date</th><th>Child</th><th>When</th><th>Situation</th><th>NO</th><th>GO</th><th>TELL</th><th>Prompting</th><th></th></tr></thead>
+      <tbody>${obs.slice(0, 60).map((x, i) => `<tr><td>${escapeHtml(x.date_time)}</td><td>${escapeHtml(x.participant_id)}</td><td>${tpName(x.timepoint)}</td><td>${sitName(x.situation)}</td>
+        <td>${x.no ? "✔" : "–"}</td><td>${x.go ? "✔" : "–"}</td><td>${x.tell ? "✔" : "–"}</td><td>${prName(x.prompt)}</td>
+        <td><button class="small-btn" onclick="GauriEngine.deleteObservation(${i})">🗑️</button></td></tr>`).join("")}</tbody></table></div>`;
+  }
+
+  function saveObservation() {
+    const val = id => (document.getElementById(id) || {}).value;
+    const chk = id => !!(document.getElementById(id) || {}).checked;
+    const msg = document.getElementById("obs-save-msg");
+    const pid = (val("obs-participant") || "").trim();
+    if (!pid) { if (msg) msg.textContent = "Please enter the child's ID first."; return; }
+    const list = getObservations();
+    list.unshift({
+      obs_id: `obs_${Date.now()}`,
+      participant_id: pid,
+      timepoint: val("obs-timepoint"),
+      situation: val("obs-situation"),
+      no: chk("obs-no"), go: chk("obs-go"), tell: chk("obs-tell"),
+      prompt: val("obs-prompt"),
+      date_time: new Date().toLocaleString(),
+      timestamp: new Date().toISOString()
+    });
+    try { localStorage.setItem(STORAGE_KEY_OBS, JSON.stringify(list)); } catch (e) { /* storage blocked */ }
+    ["obs-no", "obs-go", "obs-tell"].forEach(id => { const e = document.getElementById(id); if (e) e.checked = false; });
+    if (msg) msg.textContent = "✔ Saved.";
+    playSuccess();
+    renderObservationTab();
+  }
+
+  function deleteObservation(i) {
+    const list = getObservations();
+    list.splice(i, 1);
+    try { localStorage.setItem(STORAGE_KEY_OBS, JSON.stringify(list)); } catch (e) { /* storage blocked */ }
+    renderObservationTab();
+  }
+
+  // =========================================================================
+  // BOOSTERS + FAMILY CARD
+  // =========================================================================
+  function renderBoosterHTML(sess) {
+    const b = GauriResearch.boosterStories(sess.skill_analysis, 3);
+    const rc = sess.reliable_change_pts;
+    const note = rc ? `<p class="muted-cell" style="margin-top:.4rem;">This child answered ${sess.n_items_post || "?"} questions each time, so a change smaller than about ${rc} points could be chance. ${sess.group === "comparison" ? "(Comparison group: no stories were played.)" : ""}</p>` : "";
+    const formative = (sess.first_try_safe_pct !== null && sess.first_try_safe_pct !== undefined)
+      ? `<p style="font-size:.92rem;margin-top:.35rem;">📖 In the stories, the child chose the safe option on the <strong>first try</strong> in <strong>${sess.first_try_safe_pct}%</strong> of ${sess.stories_completed} stories, and ticked “I said it out loud” <strong>${sess.rehearsal_count || 0}</strong> time(s).</p>` : "";
+    if (!b.weak.length) {
+      return `<div class="booster-box"><strong>🎉 All six skills are at 75%+ after the Post.</strong> Plan a short refresher in a few weeks so the skills last.${formative}${note}</div>`;
+    }
+    const names = b.weak.map(k => state.lang === "en" ? GAURI_DATA.skills[k].name_en : GAURI_DATA.skills[k].name_hi).join(", ");
+    const titles = b.stories.map(s => `<li>${escapeHtml(state.lang === "en" ? s.title_en : s.title_hi)}</li>`).join("");
+    return `<div class="booster-box"><strong>🔁 Booster plan:</strong> weakest skills: ${escapeHtml(names)}. Replay and role-play these stories together:<ul>${titles}</ul>${formative}${note}</div>`;
+  }
+
+  function openFamilyCard() { playClick(); navigate("family"); }
+  function printFamilyCard() {
+    document.body.classList.add("printing-family");
+    window.print();
+    setTimeout(() => document.body.classList.remove("printing-family"), 500);
   }
 
   // Individual Student Explorer
@@ -1268,6 +2009,7 @@ const GauriEngine = (function () {
           </div>
         </div>
       </div>
+      ${renderBoosterHTML(sess)}
     `;
 
     drawRadarChartOnCanvas("individualRadarCanvas", sess.skill_analysis);
@@ -1546,7 +2288,12 @@ const GauriEngine = (function () {
     if (!container) return;
     container.innerHTML = "";
 
-    GAURI_DATA.lifeCompetencies.forEach(comp => {
+    // The 4 original rules + one rule for each newer story (taken from that story's own key rule)
+    const extra = GAURI_DATA.learningScenarios.slice(4).map(st => ({
+      icon: st.icon, title_en: st.title_en, title_hi: st.title_hi,
+      takeaway_en: st.keyRule_en, takeaway_hi: st.keyRule_hi
+    }));
+    GAURI_DATA.lifeCompetencies.concat(extra).forEach(comp => {
       const card = document.createElement("div");
       card.className = "competency-card card-pop";
 
@@ -1673,7 +2420,15 @@ const GauriEngine = (function () {
       "Post_Test_Score_Pct",
       "Observed_Growth_Points",
       "Strongest_Skill",
-      "Weakest_Skill"
+      "Weakest_Skill",
+      "Group",
+      "Form_Order",
+      "Assessment_Length",
+      "N_Items_Pre",
+      "N_Items_Post",
+      "Stories_Completed",
+      "First_Try_Safe_Pct",
+      "Rehearsal_Count"
     ];
     const rows = [headers.join(",")];
 
@@ -1689,7 +2444,15 @@ const GauriEngine = (function () {
         s.post_score_pct,
         s.delta_pct_points,
         `"${s.strongest_skill || ''}"`,
-        `"${s.weakest_skill || ''}"`
+        `"${s.weakest_skill || ''}"`,
+        `"${s.group || 'learning'}"`,
+        `"${s.form_order || ''}"`,
+        `"${s.assessment_length || ''}"`,
+        s.n_items_pre ?? '',
+        s.n_items_post ?? '',
+        s.stories_completed ?? '',
+        s.first_try_safe_pct ?? '',
+        s.rehearsal_count ?? ''
       ].join(","));
     });
 
@@ -1706,9 +2469,11 @@ const GauriEngine = (function () {
     const sessions = getAllStoredSessions();
     const payload = {
       export_timestamp: new Date().toISOString(),
-      platform: "GauriKit 2.0 Empirical Evaluation Suite",
+      platform: "GauriKit 2.1 Research Suite",
       total_sessions_recorded: sessions.length,
-      sessions_data: sessions
+      sessions_data: sessions,
+      followup_checks: getFollowups(),
+      behaviour_observations: getObservations()
     };
 
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -1839,6 +2604,55 @@ const GauriEngine = (function () {
           <path d="M 52 68 Q 60 76 68 68" stroke="#991B1B" stroke-width="2" stroke-linecap="round" fill="none" />
         </svg>
       `;
+    } else if (actorType === "peer_kid") {
+      container.innerHTML = `
+        <svg viewBox="0 0 120 200" width="100%" height="100%">
+          <ellipse cx="60" cy="190" rx="32" ry="7" fill="rgba(0,0,0,0.12)" />
+          <g transform="translate(9 30) scale(0.85)">
+            <rect x="44" y="130" width="12" height="52" rx="6" fill="#1D4ED8" />
+            <rect x="64" y="130" width="12" height="52" rx="6" fill="#1D4ED8" />
+            <rect x="30" y="92" width="14" height="36" rx="6" fill="#F59E0B" />
+            <path d="M 36 86 Q 60 80 84 86 L 80 134 L 40 134 Z" fill="#EF4444" />
+            <circle cx="60" cy="54" r="26" fill="#FDBA74" />
+            <path d="M 34 52 C 32 24 88 24 86 52 C 84 40 76 34 60 34 C 44 34 36 40 34 52 Z" fill="#111827" />
+            <circle cx="50" cy="53" r="3.5" fill="#1F2937" />
+            <circle cx="70" cy="53" r="3.5" fill="#1F2937" />
+            <path d="M 50 67 Q 60 77 72 66" stroke="#991B1B" stroke-width="2.5" stroke-linecap="round" fill="none" />
+          </g>
+        </svg>
+      `;
+    } else if (actorType === "relative") {
+      container.innerHTML = `
+        <svg viewBox="0 0 120 200" width="100%" height="100%">
+          <ellipse cx="60" cy="190" rx="36" ry="8" fill="rgba(0,0,0,0.12)" />
+          <rect x="42" y="135" width="15" height="50" rx="7" fill="#1F2937" />
+          <rect x="63" y="135" width="15" height="50" rx="7" fill="#1F2937" />
+          <path d="M 32 90 Q 60 85 88 90 L 84 140 L 36 140 Z" fill="#9F1239" />
+          <path d="M 52 88 L 60 104 L 68 88" stroke="#FDE68A" stroke-width="2.5" fill="none" />
+          <circle cx="60" cy="55" r="26" fill="#FDBA74" />
+          <path d="M 34 50 C 34 25 86 25 86 50 C 82 38 72 34 60 34 C 48 34 38 38 34 50 Z" fill="#374151" />
+          <circle cx="52" cy="53" r="3" fill="#1E293B" />
+          <circle cx="68" cy="53" r="3" fill="#1E293B" />
+          <path d="M 50 66 Q 60 78 70 66" stroke="#991B1B" stroke-width="2.5" stroke-linecap="round" fill="none" />
+        </svg>
+      `;
+    } else if (actorType === "alarm") {
+      container.innerHTML = `
+        <svg viewBox="0 0 120 200" width="100%" height="100%">
+          <rect x="30" y="20" width="60" height="10" rx="4" fill="#CBD5E1" />
+          <circle cx="60" cy="72" r="38" fill="#F8FAFC" stroke="#94A3B8" stroke-width="3" />
+          <circle cx="60" cy="72" r="26" fill="#E2E8F0" />
+          <g stroke="#94A3B8" stroke-width="2">
+            <line x1="40" y1="60" x2="80" y2="60" /><line x1="38" y1="72" x2="82" y2="72" /><line x1="40" y1="84" x2="80" y2="84" />
+          </g>
+          <circle cx="60" cy="72" r="6" fill="#EF4444" />
+          <path d="M 12 52 Q 4 72 12 92" stroke="#F59E0B" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.8" />
+          <path d="M 2 44 Q -10 72 2 100" stroke="#F59E0B" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.5" />
+          <path d="M 108 52 Q 116 72 108 92" stroke="#F59E0B" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.8" />
+          <path d="M 118 44 Q 130 72 118 100" stroke="#F59E0B" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.5" />
+          <text x="60" y="150" font-size="16" font-weight="bold" fill="#B45309" text-anchor="middle">BEEP!</text>
+        </svg>
+      `;
     } else {
       container.innerHTML = `
         <svg viewBox="0 0 120 200" width="100%" height="100%">
@@ -1875,6 +2689,7 @@ const GauriEngine = (function () {
     startJourney,
     startPostAssessment,
     openStory,
+    slideStories,
     openDashboard,
     setDashboardTab,
     onSelectIndividualSession,
@@ -1891,7 +2706,17 @@ const GauriEngine = (function () {
     clearMasterRoster,
     deleteRosterEntry,
     startNewSession,
-    celebrateMascot
+    celebrateMascot,
+    setGroup,
+    setLength,
+    setSessionType,
+    markRehearsed,
+    updateObsScript,
+    saveObservation,
+    deleteObservation,
+    openFamilyCard,
+    printFamilyCard,
+    _debug: { state, getFollowups, getObservations }
   };
 })();
 

@@ -249,6 +249,30 @@
                 </button>
               </div>
             </div>
+
+            <!-- Research design options -->
+            <div class="setup-row">
+              <span class="input-label">Session type:</span>
+              <div class="pill-group" id="session-pill-group">
+                <button class="pill-choice active" data-session="main" onclick="GauriEngine.setSessionType('main')">🧒 New child: Pre → Stories → Post</button>
+                <button class="pill-choice" data-session="followup" onclick="GauriEngine.setSessionType('followup')">🔁 Follow-up check (weeks later)</button>
+              </div>
+              <p class="setup-hint hidden" id="session-type-hint">Use the <strong>same Child / Class ID</strong> as before. This repeats the check to see whether the skills lasted.</p>
+            </div>
+            <div class="setup-row">
+              <span class="input-label">Group:</span>
+              <div class="pill-group" id="group-pill-group">
+                <button class="pill-choice active" data-group="learning" onclick="GauriEngine.setGroup('learning')">📖 Learning group (plays the stories)</button>
+                <button class="pill-choice" data-group="comparison" onclick="GauriEngine.setGroup('comparison')">⚖️ Comparison group (no stories)</button>
+              </div>
+            </div>
+            <div class="setup-row">
+              <span class="input-label">Check length:</span>
+              <div class="pill-group" id="length-pill-group">
+                <button class="pill-choice active" data-length="full" onclick="GauriEngine.setLength('full')">12 questions (full)</button>
+                <button class="pill-choice" data-length="quick" onclick="GauriEngine.setLength('quick')">6 questions (quick, for younger children)</button>
+              </div>
+            </div>
           </div>
 
           <div class="welcome-actions">
@@ -264,7 +288,7 @@
         <div class="stage-header">
           <div class="stage-tag pre-tag" data-i18n="preTestTag">Pre-Assessment: Baseline Instincts</div>
           <div class="step-indicator">
-            <span data-i18n="questionStep">Situation</span> <span id="pre-step-num">1</span>/4
+            <span data-i18n="questionStep">Situation</span> <span id="pre-step-num">1</span>/<span id="pre-step-total">12</span>
           </div>
         </div>
 
@@ -297,21 +321,78 @@
       </section>
 
       <!-- SCREEN 3: SCENARIO SELECTION HUB -->
+      <!-- COMPARISON GROUP: no stories, straight to the Post check -->
+      <section id="screen-wait" class="screen">
+        <div class="welcome-card card-pop" style="text-align:center;">
+          <div class="hub-icon-pill">⚖️ Comparison group</div>
+          <h2 class="hub-title">Stories are skipped for this group</h2>
+          <p class="welcome-desc">This child is in the <strong>comparison group</strong>. They do not play the stories, so we can see how much of any improvement comes from simply doing the check twice.</p>
+          <p class="welcome-desc">Wait the <strong>same length of time</strong> that the learning group spends on the stories, then start the Post check.</p>
+          <div class="welcome-actions">
+            <button class="action-btn success-btn large-btn" onclick="GauriEngine.startPostAssessment()">Start the Post check ⭐</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAMILY TAKE-HOME CARD (printable) -->
+      <section id="screen-family" class="screen">
+        <div class="family-card card-pop">
+          <div class="no-print family-actions">
+            <button class="action-btn secondary-btn" onclick="GauriEngine.navigate('hub')">← Back</button>
+            <button class="action-btn primary-btn" onclick="GauriEngine.printFamilyCard()">🖨️ Print this card</button>
+          </div>
+          <h2 class="family-title">🐘 Our Family Safety Plan <span class="family-title-hi">/ हमारी पारिवारिक सुरक्षा योजना</span></h2>
+          <p class="family-lead">Fill this in together with your child, then stick it up at home. <span class="hi">अपने बच्चे के साथ मिलकर इसे भरें और घर में लगाएँ।</span></p>
+
+          <div class="family-nogotell">
+            <div><span class="ngt-word">NO</span><small>Say no, or notice something is wrong<br><span class="hi">ना कहें / ख़तरा पहचानें</span></small></div>
+            <div><span class="ngt-word">GO</span><small>Move away, towards a safe adult<br><span class="hi">दूर हटें, सुरक्षित बड़े के पास जाएँ</span></small></div>
+            <div><span class="ngt-word">TELL</span><small>Tell a trusted grown-up, and keep telling until someone listens<br><span class="hi">भरोसेमंद बड़े को बताएँ, जब तक कोई सुने बताते रहें</span></small></div>
+          </div>
+
+          <div class="family-fields">
+            <div class="family-field"><strong>Our family safe-word / हमारा सुरक्षित शब्द:</strong> <span class="fill-line"></span>
+              <small>An extra check only. Always confirm with a teacher or parent before leaving with anyone new. <span class="hi">यह सिर्फ़ एक अतिरिक्त जाँच है; किसी नए व्यक्ति के साथ जाने से पहले हमेशा शिक्षक या माता-पिता से पूछें।</span></small></div>
+            <div class="family-field"><strong>Our meeting place if there is an alarm or emergency / आपातकाल में मिलने की जगह:</strong> <span class="fill-line"></span></div>
+            <div class="family-field"><strong>Three grown-ups I can tell / तीन भरोसेमंद बड़े (नाम और फ़ोन):</strong>
+              <span class="fill-line"></span><span class="fill-line"></span><span class="fill-line"></span></div>
+            <div class="family-field"><strong>Emergency numbers / आपातकालीन नंबर:</strong> 112 (emergency / आपातकाल) · 1098 (CHILDLINE / चाइल्डलाइन). <small>Please check the numbers for your area. <span class="hi">अपने क्षेत्र के नंबर जाँच लें।</span></small></div>
+          </div>
+
+          <h3 class="family-sub">Talk and practise together (5 minutes a week) / साथ बात करें और अभ्यास करें</h3>
+          <ul class="family-list">
+            <li>Ask: “Which story did you like best? What did the child do?” <span class="hi">पूछें: “आपको कौन-सी कहानी पसंद आई? बच्चे ने क्या किया?”</span></li>
+            <li>Practise saying out loud: “No, I don't like that. I'm going to tell a grown-up I trust.” <span class="hi">ज़ोर से बोलकर अभ्यास करें: “नहीं, मुझे यह पसंद नहीं। मैं किसी भरोसेमंद बड़े को बताऊँगा/बताऊँगी।”</span></li>
+            <li>Play “what if?”: a stranger offers a ride, someone knocks at the door, a friend dares you. Let your child show you what they would do. <span class="hi">“अगर ऐसा हो तो?” खेल खेलें और बच्चे से करके दिखवाएँ।</span></li>
+            <li>Remember: <strong>you are never in trouble for telling.</strong> Stay calm and thank your child when they tell you. <span class="hi">याद रखें: बताने पर बच्चा कभी दोषी नहीं होता। शांत रहें और बताने के लिए धन्यवाद दें।</span></li>
+          </ul>
+        </div>
+      </section>
+
       <section id="screen-hub" class="screen">
         <div class="hub-header">
           <div class="hub-icon-pill">📚 Story Exploration</div>
           <h2 class="hub-title" data-i18n="hubTitle">Interactive Safety Stories</h2>
-          <p class="hub-subtitle" data-i18n="hubSubtitle">Choose a story to enter the animated environment and practice critical safety decisions.</p>
+          <p class="hub-subtitle" data-i18n="hubSubtitle">Slide through the stories and pick any one to practise. Try each choice, and say the safe answer out loud!</p>
         </div>
 
-        <div class="scenario-grid" id="scenario-cards-grid">
-          <!-- Populated by engine.js with 4 interactive scenario cards -->
+        <!-- Swipeable story slider: drag, swipe, use arrows, dots or the keyboard (← →) -->
+        <div class="carousel-progress" id="carousel-progress" aria-live="polite"></div>
+        <div class="scenario-carousel" id="scenario-carousel">
+          <button class="carousel-arrow carousel-prev" id="carousel-prev" type="button" aria-label="Previous story" onclick="GauriEngine.slideStories(-1)">‹</button>
+          <div class="scenario-track" id="scenario-cards-grid" tabindex="0" role="list" aria-label="Safety stories">
+            <!-- Populated by engine.js with one slide per interactive scenario -->
+          </div>
+          <button class="carousel-arrow carousel-next" id="carousel-next" type="button" aria-label="Next story" onclick="GauriEngine.slideStories(1)">›</button>
         </div>
+        <div class="carousel-dots" id="carousel-dots" role="tablist" aria-label="Choose a story"></div>
+        <p class="carousel-hint" id="carousel-hint" data-i18n="slideHint">Slide to explore all the stories, then tap one to begin.</p>
 
         <div class="hub-footer">
           <button id="proceed-post-btn" class="action-btn success-btn large-btn" onclick="GauriEngine.startPostAssessment()">
             <span data-i18n="proceedPostBtn">Ready for Final Post-Assessment ⭐</span>
           </button>
+          <button class="action-btn secondary-btn large-btn" onclick="GauriEngine.openFamilyCard()">📄 Family take-home card</button>
         </div>
       </section>
 
@@ -498,7 +579,7 @@
         <div class="stage-header">
           <div class="stage-tag post-tag" data-i18n="postTestTag">Post-Assessment: Learning Transfer</div>
           <div class="step-indicator">
-            <span data-i18n="questionStep">Situation</span> <span id="post-step-num">1</span>/4
+            <span data-i18n="questionStep">Situation</span> <span id="post-step-num">1</span>/<span id="post-step-total">12</span>
           </div>
         </div>
 
@@ -548,6 +629,9 @@
             <button class="pill-btn success-btn" onclick="GauriEngine.exportMasterCSV()" title="Download CSV spreadsheet">
               <span>📊</span> <span data-i18n="exportMasterCsvBtn">Download Master CSV</span>
             </button>
+            <button class="pill-btn secondary-btn" onclick="GauriEngine.openFamilyCard()" title="Printable card for parents">
+              <span>👪</span> <span>Family Card</span>
+            </button>
             <button class="pill-btn secondary-btn" onclick="window.print()" title="Print this report">
               <span>🖨️</span> <span data-i18n="printReportBtn">Print Report</span>
             </button>
@@ -567,6 +651,9 @@
           </button>
           <button class="dash-tab-btn" data-tab="age_cohorts" onclick="GauriEngine.setDashboardTab('age_cohorts')">
             <span data-i18n="tabAgeCohorts">👥 Data-Driven Age Cohorts</span>
+          </button>
+          <button class="dash-tab-btn" data-tab="observation" onclick="GauriEngine.setDashboardTab('observation')">
+            <span>👀 Behaviour Observation</span>
           </button>
           <button class="dash-tab-btn" data-tab="master_roster" onclick="GauriEngine.setDashboardTab('master_roster')">
             <span data-i18n="tabMasterRoster">📁 Master Session Records</span>
@@ -622,6 +709,23 @@
             <div class="competencies-grid" id="competencies-container">
               <!-- Dynamically populated life safety rules -->
             </div>
+          </div>
+
+          <div class="dash-panel card-pop" style="margin-top: 1.5rem;">
+            <h3 class="panel-title"><span>🔬</span> <span>Evidence check</span></h3>
+            <p class="panel-sub">Mean change in <em>stated</em> safe choices with a 95% confidence interval, compared with a group that did not play the stories.</p>
+            <div id="evidence-container"></div>
+          </div>
+
+          <div class="dash-panel card-pop" style="margin-top: 1.5rem;">
+            <h3 class="panel-title"><span>🔁</span> <span>Do the skills last? (follow-up)</span></h3>
+            <div id="retention-container"></div>
+          </div>
+
+          <div class="dash-panel card-pop" style="margin-top: 1.5rem;">
+            <h3 class="panel-title"><span>🧪</span> <span>Question quality (item analysis)</span></h3>
+            <p class="panel-sub">Which questions are too easy or too hard, and whether the two test forms are equally difficult.</p>
+            <div id="item-analysis-container"></div>
           </div>
         </div>
 
@@ -684,6 +788,36 @@
         <!-- ================================================================= -->
         <!-- TAB 5: MASTER SESSION RECORDS -->
         <!-- ================================================================= -->
+        <div class="dash-tab-panel" id="tab-panel-observation">
+          <div class="dash-panel card-pop">
+            <h3 class="panel-title"><span>👀</span> <span>Behaviour Observation (role-play check)</span></h3>
+            <p class="panel-sub">Research finding: what children <em>say</em> they would do does not reliably predict what they <em>do</em>. A trained adult plays the situation (same script every time) and ticks what the child did <strong>on their own</strong>. Do this before the stories, right after, and weeks later. Keep a teacher present; never act out body-safety situations with a real person, use a puppet or picture card.</p>
+            <div class="obs-form">
+              <label class="input-label" for="obs-participant">Child ID</label>
+              <input id="obs-participant" class="text-input" list="obs-participants-list" placeholder="e.g. C-101">
+              <datalist id="obs-participants-list"></datalist>
+              <label class="input-label" for="obs-timepoint">When</label>
+              <select id="obs-timepoint" class="text-input"></select>
+              <label class="input-label" for="obs-situation">Situation</label>
+              <select id="obs-situation" class="text-input" onchange="GauriEngine.updateObsScript()"></select>
+              <div class="obs-script"><strong>Script for the adult:</strong> <span id="obs-script"></span></div>
+              <label class="obs-check"><input type="checkbox" id="obs-no"> <span id="obs-no-label">NO</span></label>
+              <label class="obs-check"><input type="checkbox" id="obs-go"> <span id="obs-go-label">GO</span></label>
+              <label class="obs-check"><input type="checkbox" id="obs-tell"> <span id="obs-tell-label">TELL</span></label>
+              <label class="input-label" for="obs-prompt">How much help was needed?</label>
+              <select id="obs-prompt" class="text-input"></select>
+              <div>
+                <button class="action-btn primary-btn" onclick="GauriEngine.saveObservation()">Save observation</button>
+                <span id="obs-save-msg" class="muted-cell" style="margin-left:.75rem;"></span>
+              </div>
+            </div>
+            <h4 class="family-sub">Summary</h4>
+            <div id="obs-summary"></div>
+            <h4 class="family-sub">All observations</h4>
+            <div id="obs-list"></div>
+          </div>
+        </div>
+
         <div class="dash-tab-panel" id="tab-panel-master_roster">
           <div class="dash-panel card-pop">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.5rem;">
@@ -740,6 +874,9 @@
 
   <!-- SCRIPTS -->
   <script src="scenarios.js"></script>
+  <script src="scenarios_more.js"></script>
+  <script src="scenarios_assess.js"></script>
+  <script src="research.js"></script>
   <script src="engine.js"></script>
 </body>
 </html>

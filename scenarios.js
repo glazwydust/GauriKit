@@ -23,7 +23,8 @@ const GAURI_DATA = {
       questionStep: "Situation",
       whatWouldYouDo: "What would you do?",
       hubTitle: "Interactive Safety Stories",
-      hubSubtitle: "Choose a story to enter the animated environment and practice critical safety decisions.",
+      hubSubtitle: "Slide through the stories and pick any one to practise. Try each choice, and say the safe answer out loud!",
+      slideHint: "Slide to explore all the stories, then tap one to begin.",
       proceedPostBtn: "Ready for Final Post-Assessment ⭐",
       backToStories: "Stories Hub",
       learningMode: "Learning & Reflection",
@@ -32,7 +33,7 @@ const GAURI_DATA = {
       tryAnotherChoice: "Try Another Choice ↺",
       continueStory: "Continue to Next Story ⭐",
       dashboardTitle: "Educator & Researcher Analytics Hub",
-      dashboardSubtitle: "Rigorous empirical evaluation of child safety decision-making, isomorphic learning transfer, and cognitive skill progression.",
+      dashboardSubtitle: "Records what children say they would do in each situation (stated choices). It does not measure what a child would do in a real situation.",
       exportJsonBtn: "Export JSON",
       exportCsvBtn: "Export CSV",
       exportMasterCsvBtn: "Download Master CSV",
@@ -57,7 +58,7 @@ const GAURI_DATA = {
       selectStudentPrompt: "Select a participant to inspect detailed metrics:",
       individualPreScore: "Pre-Assessment Baseline:",
       individualPostScore: "Post-Assessment Transfer:",
-      individualObservedChange: "Observed Net Change (Δ):",
+      individualObservedChange: "Change in Safe Choices (Δ):",
       strongestSkillLabel: "Strongest Observed Skill:",
       weakestSkillLabel: "Key Growth Focus Area:",
       percentagePoints: "percentage points",
@@ -76,7 +77,7 @@ const GAURI_DATA = {
       noCohortData: "No sessions recorded yet for this age group.",
       
       // Competency Labels
-      skillsMasteredTitle: "Key Life Safety Competencies Mastered",
+      skillsMasteredTitle: "Key Safety Ideas Practised",
       skillsMasteredSub: "Empirical mastery of core real-world safety rules and behavioral habits.",
       
       // Master Log Columns
@@ -134,7 +135,8 @@ const GAURI_DATA = {
       questionStep: "परिस्थिति",
       whatWouldYouDo: "आप क्या करेंगे?",
       hubTitle: "सुरक्षा कहानियाँ चुनें",
-      hubSubtitle: "एनिमेटेड दुनिया में जाने और महत्वपूर्ण सुरक्षा निर्णय लेने के लिए एक कहानी चुनें।",
+      hubSubtitle: "कहानियों को स्लाइड करें और अभ्यास के लिए कोई भी एक चुनें। हर विकल्प आज़माएँ और सही उत्तर ज़ोर से बोलें!",
+      slideHint: "सभी कहानियाँ देखने के लिए स्लाइड करें, फिर शुरू करने के लिए किसी एक पर टैप करें।",
       proceedPostBtn: "अंतिम मूल्यांकन के लिए तैयार ⭐",
       backToStories: "कहानियों पर वापस जाएँ",
       learningMode: "सीखने और समझने का मोड",
@@ -143,7 +145,7 @@ const GAURI_DATA = {
       tryAnotherChoice: "दूसरा विकल्प चुनें ↺",
       continueStory: "अगली कहानी पर जाएँ ⭐",
       dashboardTitle: "शोधकर्ता एवं शिक्षक मूल्यांकन केंद्र",
-      dashboardSubtitle: "संज्ञानात्मक कौशल का बहुआयामी विश्लेषण, आयु-वर्ग तुलना और वास्तविक जीवन सुरक्षा कौशल।",
+      dashboardSubtitle: "यह दर्ज करता है कि बच्चे हर स्थिति में क्या करने को कहते हैं (बताए गए विकल्प)। यह नहीं मापता कि असली स्थिति में बच्चा क्या करेगा।",
       exportJsonBtn: "JSON डाउनलोड करें",
       exportCsvBtn: "CSV डाउनलोड करें",
       exportMasterCsvBtn: "मास्टर CSV डाउनलोड करें",
@@ -168,7 +170,7 @@ const GAURI_DATA = {
       selectStudentPrompt: "सत्र विवरण देखने के लिए प्रतिभागी चुनें:",
       individualPreScore: "पूर्व-मूल्यांकन स्कोर:",
       individualPostScore: "उत्तर-मूल्यांकन स्कोर:",
-      individualObservedChange: "वास्तविक सुधार (Δ):",
+      individualObservedChange: "सुरक्षित विकल्पों में बदलाव (Δ):",
       strongestSkillLabel: "सर्वश्रेष्ठ प्रदर्शित कौशल:",
       weakestSkillLabel: "सुधार का मुख्य क्षेत्र:",
       percentagePoints: "प्रतिशत अंक",
@@ -187,7 +189,7 @@ const GAURI_DATA = {
       noCohortData: "इस आयु वर्ग के लिए अभी कोई सत्र दर्ज नहीं है।",
       
       // Competency Labels
-      skillsMasteredTitle: "सीखे गए मुख्य जीवन सुरक्षा कौशल",
+      skillsMasteredTitle: "अभ्यास किए गए मुख्य सुरक्षा विचार",
       skillsMasteredSub: "छात्रों द्वारा सीखे गए व्यावहारिक सुरक्षा नियम और आदतें।",
       
       // Master Log Columns
@@ -493,8 +495,10 @@ const GAURI_DATA = {
       guidePrompt_hi: "यह बात कुछ अजीब लग रही है। स्थिति को समझें और सही निर्णय लें।",
       teacherPrompt_en: "Ask the class: 'What would you do if an adult you don't know says your Mum asked them to pick you up?' Discuss why checking with a teacher or using a family safe-word protects you.",
       teacherPrompt_hi: "कक्षा से पूछें: 'यदि कोई अनजान व्यक्ति कहे कि आपकी मम्मी ने भेजा है, तो आप क्या करेंगे?' समझाएँ कि शिक्षक से पूछना या पारिवारिक गुप्त शब्द का उपयोग करना क्यों ज़रूरी है।",
-      keyRule_en: "Rule for Children: Safe adults will never mind waiting while you check with a teacher or parent first.",
-      keyRule_hi: "बच्चों के लिए नियम: सुरक्षित बड़े हमेशा शिक्षक या माता-पिता से पुष्टि करने तक इंतज़ार करने में कभी बुरा नहीं मानेंगे।",
+      practice_en: "No thank you! I'm going to wait with my teacher.",
+      practice_hi: "नहीं, धन्यवाद! मुझे टीचर के साथ इंतज़ार करना है।",
+      keyRule_en: "NO - GO - TELL: Say no, go to a safe adult (your teacher), and tell them. Safe adults will never mind waiting while you check with a teacher or parent first.",
+      keyRule_hi: "ना - जाओ - बताओ: 'ना' कहें, किसी सुरक्षित बड़े (शिक्षक) के पास जाएँ और उन्हें बताएँ। सुरक्षित बड़े हमेशा शिक्षक या माता-पिता से पुष्टि करने तक इंतज़ार करने में कभी बुरा नहीं मानेंगे।",
       choices: [
         {
           id: "l1_c1",
@@ -510,14 +514,14 @@ const GAURI_DATA = {
         },
         {
           id: "l1_c2",
-          text_en: "Ask: 'What is our family secret safe-word?' and step back toward school.",
-          text_hi: "'हमारे परिवार का गुप्त सुरक्षित शब्द (Safe-word) क्या है?' पूछें और स्कूल की ओर कदम बढ़ाएं।",
+          text_en: "Say 'I have to check with my teacher first' and walk back toward school, away from the car.",
+          text_hi: "'पहले मुझे अपने शिक्षक से पूछना है' कहें और गाड़ी से दूर, स्कूल की ओर वापस चलें।",
           rating: "safe",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           guidanceTitle_en: "Excellent Critical Thinking! ⭐",
           guidanceTitle_hi: "शानदार समझदारी! ⭐",
-          guidanceBody_en: "Using a secret family safe-word or asking for verification keeps you completely in control. The stranger doesn't know the password, and you stayed near the school safety zone.",
-          guidanceBody_hi: "पारिवारिक गुप्त शब्द का उपयोग करना या पुष्टि मांगना आपको सुरक्षित रखता है। अनजान व्यक्ति को पासवर्ड नहीं पता होगा और आप सुरक्षित रहेंगे।",
+          guidanceBody_en: "You didn't have to argue with the adult or test them. Walking back to your teacher and letting grown-ups do the checking (a family safe-word is a great tool for them!) keeps you in control.",
+          guidanceBody_hi: "आपको उस व्यक्ति से बहस करने या उसे परखने की ज़रूरत नहीं थी। शिक्षक के पास वापस जाना और जाँच का काम बड़ों पर छोड़ना (परिवार का गुप्त शब्द उनके बहुत काम आता है!) आपको नियंत्रण में रखता है।",
           actorReaction: "safe_smile"
         },
         {
@@ -567,6 +571,8 @@ const GAURI_DATA = {
       guidePrompt_hi: "निजी जानकारी घर की चाबी जैसी है—इसे सुरक्षित रखें।",
       teacherPrompt_en: "Ask the class: 'Is an online friend the same as a real-life friend?' Emphasize that anyone online can pretend to be a child.",
       teacherPrompt_hi: "कक्षा से पूछें: 'क्या ऑनलाइन दोस्त असली दोस्त जैसा होता है?' समझाएँ कि इंटरनेट पर कोई भी खुद को बच्चा बता सकता है।",
+      practice_en: "I don't share personal details in games. I'm telling my parents.",
+      practice_hi: "गेम में निजी जानकारी नहीं देनी है। माता-पिता को बताना है।",
       keyRule_en: "Rule for Children: Never share your school name, home address, real name, or photos with online gaming contacts.",
       keyRule_hi: "बच्चों के लिए नियम: ऑनलाइन गेमिंग में कभी भी अपना स्कूल, घर का पता, असली नाम या फोटो साझा न करें।",
       choices: [
@@ -629,6 +635,8 @@ const GAURI_DATA = {
       guidePrompt_hi: "शांत रहें। एक ही जगह रुकें या वर्दी वाले कर्मचारी को ढूँढें।",
       teacherPrompt_en: "Ask the class: 'Who are safe helpers when you get lost in a mall or market?' Guide them to identify uniformed cashiers, security guards, or mothers with children.",
       teacherPrompt_hi: "कक्षा से पूछें: 'मॉल या बाज़ार में खो जाने पर सुरक्षित मददगार कौन होते हैं?' उन्हें वर्दी वाले कर्मचारियों, गार्ड या बच्चों वाली माताओं को पहचानने का सुझाव दें।",
+      practice_en: "I'm lost. Can you help me find my family?",
+      practice_hi: "मैं अपने परिवार से बिछड़ गया/गई हूँ। क्या आप मेरी मदद करेंगे?",
       keyRule_en: "Rule for Children: Freeze in place, never leave the store/building with a stranger, and ask uniformed staff for help.",
       keyRule_hi: "बच्चों के लिए नियम: एक जगह रुकें, किसी अनजान के साथ दुकान या इमारत से बाहर न जाएँ, और वर्दी वाले कर्मचारी से मदद लें।",
       choices: [
@@ -691,6 +699,8 @@ const GAURI_DATA = {
       guidePrompt_hi: "सरप्राइज सबको खुशी देते हैं; गलत रहस्य चिंता और डर पैदा करते हैं।",
       teacherPrompt_en: "Ask the class: 'What is the difference between a good surprise (like a birthday party) and an unsafe secret?' Reassure children that they will never be in trouble for telling the truth.",
       teacherPrompt_hi: "कक्षा से पूछें: 'एक अच्छे सरप्राइज (जैसे जन्मदिन पार्टी) और माता-पिता से छिपाने वाले रहस्य में क्या अंतर होता है?' बच्चों को भरोसा दिलाएँ कि सच बोलने पर उन्हें कभी डांट नहीं पड़ेगी।",
+      practice_en: "I don't keep secrets from my parents.",
+      practice_hi: "माता-पिता से कोई बात नहीं छिपानी।",
       keyRule_en: "Rule for Children: Safe adults will NEVER ask you to keep a secret from your parents. Always share secrets that make you feel uneasy.",
       keyRule_hi: "बच्चों के लिए नियम: सुरक्षित बड़े कभी भी माता-पिता से बात छिपाने को नहीं कहेंगे। जो रहस्य आपको असहज करे, उसे हमेशा माता-पिता को बताएं।",
       choices: [
