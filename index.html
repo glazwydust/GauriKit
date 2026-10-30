@@ -6,8 +6,9 @@
   <title>GauriKit 2.0 — Child Safety & Critical Thinking Tool</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="theme.css">
 </head>
 <body>
   <div id="app" class="app-container">
@@ -221,7 +222,7 @@
 
             <!-- Institution / School Name (Confidential) -->
             <div class="setup-row">
-              <label for="institution-name" class="input-label" data-i18n="institutionLabel">School / Institution (stored locally & confidentially):</label>
+              <label for="institution-name" class="input-label" data-i18n="institutionLabel">School / Institution:</label>
               <input type="text" id="institution-name" class="text-input" placeholder="e.g. Greenwood High or DPS" value="Fellowship Pilot School">
             </div>
 
@@ -615,48 +616,37 @@
       <section id="screen-dashboard" class="screen">
         <div class="dashboard-header">
           <div class="dash-title-group">
-            <div class="hub-icon-pill">🎓 Fellowship Research Hub</div>
-            <h2 class="dash-title" data-i18n="dashboardTitle">Educator & Researcher Analytics Hub</h2>
-            <p class="dash-desc" data-i18n="dashboardSubtitle">
-              Rigorous empirical evaluation of child safety decision-making, isomorphic learning transfer, and cognitive skill progression.
-            </p>
+            <div class="hub-icon-pill">🎓 Researcher Hub</div>
+            <h2 class="dash-title" data-i18n="dashboardTitle">Results</h2>
+            <p class="dash-desc" data-i18n="dashboardSubtitle">Pre → Post: what children say they would do.</p>
           </div>
-
           <div class="dash-controls">
-            <button class="pill-btn primary-btn" onclick="GauriEngine.exportDataJSON()" title="Export JSON dataset">
-              <span>📥</span> <span data-i18n="exportJsonBtn">Export JSON</span>
-            </button>
-            <button class="pill-btn success-btn" onclick="GauriEngine.exportMasterCSV()" title="Download CSV spreadsheet">
-              <span>📊</span> <span data-i18n="exportMasterCsvBtn">Download Master CSV</span>
-            </button>
-            <button class="pill-btn secondary-btn" onclick="GauriEngine.openFamilyCard()" title="Printable card for parents">
-              <span>👪</span> <span>Family Card</span>
-            </button>
-            <button class="pill-btn secondary-btn" onclick="window.print()" title="Print this report">
-              <span>🖨️</span> <span data-i18n="printReportBtn">Print Report</span>
-            </button>
+            <button class="pill-btn primary-btn" onclick="GauriEngine.exportDataJSON()" title="Export JSON dataset">📥 <span data-i18n="exportJsonBtn">JSON</span></button>
+            <button class="pill-btn success-btn" onclick="GauriEngine.exportMasterCSV()" title="Download CSV spreadsheet">📊 <span data-i18n="exportMasterCsvBtn">CSV</span></button>
+            <button class="pill-btn secondary-btn" onclick="GauriEngine.openFamilyCard()" title="Printable card for parents">👪 Family card</button>
+            <button class="pill-btn secondary-btn" onclick="window.print()" title="Print this report">🖨️ <span data-i18n="printReportBtn">Print</span></button>
           </div>
         </div>
 
         <!-- DASHBOARD NAVIGATION TABS (5 Clear Views) -->
         <div class="dash-tabs-bar">
           <button class="dash-tab-btn active" data-tab="overview" onclick="GauriEngine.setDashboardTab('overview')">
-            <span data-i18n="tabOverview">📊 Overview & Stats</span>
+            <span data-i18n="tabOverview">📊 Overview</span>
           </button>
           <button class="dash-tab-btn" data-tab="individual" onclick="GauriEngine.setDashboardTab('individual')">
-            <span data-i18n="tabIndividual">🧑‍🎓 Individual Student Explorer</span>
+            <span data-i18n="tabIndividual">🧒 Child</span>
           </button>
           <button class="dash-tab-btn" data-tab="classroom" onclick="GauriEngine.setDashboardTab('classroom')">
-            <span data-i18n="tabClassroom">🏫 Classroom Discussion Analytics</span>
+            <span data-i18n="tabClassroom">🏫 Class</span>
           </button>
           <button class="dash-tab-btn" data-tab="age_cohorts" onclick="GauriEngine.setDashboardTab('age_cohorts')">
-            <span data-i18n="tabAgeCohorts">👥 Data-Driven Age Cohorts</span>
+            <span data-i18n="tabAgeCohorts">👥 Ages</span>
           </button>
           <button class="dash-tab-btn" data-tab="observation" onclick="GauriEngine.setDashboardTab('observation')">
-            <span>👀 Behaviour Observation</span>
+            <span>👀 Observe</span>
           </button>
           <button class="dash-tab-btn" data-tab="master_roster" onclick="GauriEngine.setDashboardTab('master_roster')">
-            <span data-i18n="tabMasterRoster">📁 Master Session Records</span>
+            <span data-i18n="tabMasterRoster">📁 Records</span>
           </button>
         </div>
 
@@ -664,68 +654,27 @@
         <!-- TAB 1: OVERVIEW & OVERALL METRICS -->
         <!-- ================================================================= -->
         <div class="dash-tab-panel active" id="tab-panel-overview">
-          <!-- SUMMARY STATS TILES -->
-          <div class="stats-tiles-grid">
-            <div class="stat-card">
-              <div class="stat-icon">👥</div>
-              <div class="stat-content">
-                <span class="stat-label" data-i18n="statTotalParticipants">Total Participants</span>
-                <span class="stat-val" id="stat-total-participants">0</span>
-              </div>
-            </div>
-
-            <div class="stat-card">
-              <div class="stat-icon">🧑‍🎓</div>
-              <div class="stat-content">
-                <span class="stat-label" data-i18n="statIndividualRuns">Individual Evaluations</span>
-                <span class="stat-val" id="stat-individual-count">0</span>
-              </div>
-            </div>
-
-            <div class="stat-card">
-              <div class="stat-icon">🏫</div>
-              <div class="stat-content">
-                <span class="stat-label" data-i18n="statClassroomRuns">Classroom Discussions</span>
-                <span class="stat-val" id="stat-classroom-count">0</span>
-              </div>
-            </div>
-
-            <div class="stat-card">
-              <div class="stat-icon">📈</div>
-              <div class="stat-content">
-                <span class="stat-label" data-i18n="statAvgObservedGrowth">Avg Observed Growth (Δ)</span>
-                <span class="stat-val" id="stat-avg-growth">No Data</span>
-              </div>
-            </div>
+          <div class="kpi-row">
+            <div class="kpi kpi-sky"><span class="kpi-ic">🧒</span><div><b id="stat-individual-count">0</b><small data-i18n="kpiChildren">Children</small></div></div>
+            <div class="kpi kpi-lav"><span class="kpi-ic">🏫</span><div><b id="stat-classroom-count">0</b><small data-i18n="kpiClasses">Classes</small></div></div>
+            <div class="kpi kpi-leaf"><span class="kpi-ic">📈</span><div><b id="stat-avg-growth">–</b><small data-i18n="kpiAvg">Avg change</small></div></div>
+            <div class="kpi kpi-sun"><span class="kpi-ic">⭐</span><div><b id="stat-improved">–</b><small data-i18n="kpiImproved">Improved</small></div></div>
           </div>
 
-          <!-- PRACTICAL LIFE SAFETY COMPETENCIES MASTERED -->
-          <div class="dash-panel card-pop" style="margin-top: 1.5rem;">
-            <h3 class="panel-title">
-              <span>🛡️</span> <span data-i18n="skillsMasteredTitle">Key Life Safety Competencies Mastered</span>
-            </h3>
-            <p class="panel-sub" data-i18n="skillsMasteredSub">Core real-world safety habits and decision rules acquired by students during the lesson.</p>
-            
-            <div class="competencies-grid" id="competencies-container">
-              <!-- Dynamically populated life safety rules -->
-            </div>
-          </div>
-
-          <div class="dash-panel card-pop" style="margin-top: 1.5rem;">
-            <h3 class="panel-title"><span>🔬</span> <span>Evidence check</span></h3>
-            <p class="panel-sub">Mean change in <em>stated</em> safe choices with a 95% confidence interval, compared with a group that did not play the stories.</p>
+          <div class="card-panel">
+            <h3 class="card-title"><span class="card-title-ic ic-coral">🔬</span> <span data-i18n="evidenceTitle">Did it work?</span></h3>
             <div id="evidence-container"></div>
           </div>
 
-          <div class="dash-panel card-pop" style="margin-top: 1.5rem;">
-            <h3 class="panel-title"><span>🔁</span> <span>Do the skills last? (follow-up)</span></h3>
-            <div id="retention-container"></div>
-          </div>
-
-          <div class="dash-panel card-pop" style="margin-top: 1.5rem;">
-            <h3 class="panel-title"><span>🧪</span> <span>Question quality (item analysis)</span></h3>
-            <p class="panel-sub">Which questions are too easy or too hard, and whether the two test forms are equally difficult.</p>
-            <div id="item-analysis-container"></div>
+          <div class="two-col">
+            <div class="card-panel">
+              <h3 class="card-title"><span class="card-title-ic ic-leaf">🧠</span> <span data-i18n="skillsTitle">Skills, group average</span></h3>
+              <div id="skills-container"></div>
+            </div>
+            <div class="card-panel">
+              <h3 class="card-title"><span class="card-title-ic ic-sky">🔁</span> <span data-i18n="lastTitle">Do skills last?</span></h3>
+              <div id="retention-container"></div>
+            </div>
           </div>
         </div>
 
@@ -790,8 +739,8 @@
         <!-- ================================================================= -->
         <div class="dash-tab-panel" id="tab-panel-observation">
           <div class="dash-panel card-pop">
-            <h3 class="panel-title"><span>👀</span> <span>Behaviour Observation (role-play check)</span></h3>
-            <p class="panel-sub">Research finding: what children <em>say</em> they would do does not reliably predict what they <em>do</em>. A trained adult plays the situation (same script every time) and ticks what the child did <strong>on their own</strong>. Do this before the stories, right after, and weeks later. Keep a teacher present; never act out body-safety situations with a real person, use a puppet or picture card.</p>
+            <h3 class="panel-title"><span>👀</span> <span>Behaviour check (role-play)</span></h3>
+            <p class="panel-sub">Children's answers on screen don't always match what they do. A trained adult plays a short scripted situation and ticks what the child did <strong>on their own</strong>. Use a puppet for body-safety, never a real person.</p>
             <div class="obs-form">
               <label class="input-label" for="obs-participant">Child ID</label>
               <input id="obs-participant" class="text-input" list="obs-participants-list" placeholder="e.g. C-101">
@@ -813,7 +762,7 @@
             </div>
             <h4 class="family-sub">Summary</h4>
             <div id="obs-summary"></div>
-            <h4 class="family-sub">All observations</h4>
+            <h4 class="family-sub">Log</h4>
             <div id="obs-list"></div>
           </div>
         </div>

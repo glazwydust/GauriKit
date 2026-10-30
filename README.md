@@ -54,6 +54,19 @@
 New files: `research.js` (statistics, form builder, observation scripts, booster logic), `scenarios_assess.js` (12 matched Pre/Post pairs).
 CSV/JSON exports now include group, form order, length, first-try %, rehearsal count, follow-ups and observations.
 
+## 🎨 v2.3 Design Refresh
+
+| What | Where to edit |
+|---|---|
+| Colours, fonts, borders, shadows (the whole look) | `theme.css` (loads after `styles.css`; change the `--ink`, `--coral`, `--sun`, `--leaf`, `--sky`, `--pink`, `--lav` variables at the top) |
+| Pastel background scene (rainbow, sun, hills) | `doodles.svg` |
+| Welcome-form label ("School / Institution") | `index.html` and the `institutionLabel` key in `scenarios.js` |
+| Short answer options | `scenarios.js`, `scenarios_more.js`, `scenarios_assess.js` |
+| Results layout | `index.html` plus the `render...` functions in `engine.js` |
+
+Fonts (Baloo 2 + Nunito) load from Google Fonts, so they need an internet connection.
+The item-analysis table and the competencies grid were removed from the Results page. All research features (A/B forms, comparison group, follow-up, observations, confidence intervals, booster plan) are unchanged.
+
 ## ⚠️ Honest Limitations
 
 - **The Pre/Post score measures what children *say* they would do (stated choices), not what they *would* do.** The research is clear that verbal or role-play answers do not reliably predict real behaviour; only in situ observation does. Report results as "change in stated safe choices".
@@ -131,6 +144,8 @@ python student_brain.py
 ---
 
 ## 📁 Project Structure
+
+(New in v2.3: `theme.css`, `doodles.svg`)
 
 ```
 gaurikit2.0/

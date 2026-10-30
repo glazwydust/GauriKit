@@ -1613,26 +1613,13 @@ const GauriEngine = (function () {
     completeSessions.forEach(s => { totalDelta += s.delta_pct_points || 0; });
     const avgGrowth = completeSessions.length > 0 ? Math.round(totalDelta / completeSessions.length) : 0;
 
-    // Overview Stats
-    const totalPartEl = document.getElementById("stat-total-participants");
-    if (totalPartEl) totalPartEl.textContent = totalParticipants;
-
-    const indCountEl = document.getElementById("stat-individual-count");
-    if (indCountEl) indCountEl.textContent = individualSessions.length;
-
-    const classCountEl = document.getElementById("stat-classroom-count");
-    if (classCountEl) classCountEl.textContent = classroomSessions.length;
-
-    const avgGrowthEl = document.getElementById("stat-avg-growth");
-    if (avgGrowthEl) {
-      if (completeSessions.length > 0) {
-        avgGrowthEl.textContent = `${avgGrowth >= 0 ? "+" : ""}${avgGrowth}%`;
-        avgGrowthEl.classList.add("highlight-green");
-      } else {
-        avgGrowthEl.textContent = state.lang === "en" ? "No Data" : "कोई डेटा नहीं";
-        avgGrowthEl.classList.remove("highlight-green");
-      }
-    }
+    // KPI tiles
+    const setText = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    const indComplete = completeSessions.filter(s => s.mode === "individual");
+    setText("stat-individual-count", individualSessions.length);
+    setText("stat-classroom-count", classroomSessions.length);
+    setText("stat-avg-growth", completeSessions.length ? `${avgGrowth >= 0 ? "+" : ""}${avgGrowth}` : "–");
+    setText("stat-improved", indComplete.length ? `${indComplete.filter(s => s.delta_pct_points > 0).length}/${indComplete.length}` : "–");
 
     // 1. Render Individual Explorer Tab
     renderIndividualExplorer(allSessions);
@@ -1646,12 +1633,9 @@ const GauriEngine = (function () {
     // 4. Render Master Sessions Roster Table
     renderMasterRoster(allSessions);
 
-    // 5. Render Practical Life Competencies
-    renderLifeCompetencies();
-
     // 6. Evidence check, item analysis, retention, behaviour observation
     renderEvidencePanel(allSessions);
-    renderItemAnalysis(allSessions);
+    renderSkillSummary(allSessions);
     renderRetentionPanel(allSessions);
     renderObservationTab();
   }
@@ -1665,17 +1649,32 @@ const GauriEngine = (function () {
     return `${r >= 0 ? "+" : ""}${r}`;
   }
 
-  function evidenceRow(label, list) {
+  const SKILL_COLORS = { risk_recognition: "coral", verification: "sky", help_seeking: "leaf", boundary_setting: "lav", impulse_control: "sun", problem_solving: "pink" };
+
+  // One thin Pre/Post bar pair (amber = Pre, green = Post)
+  function prePostBars(pre, post) {
+    return `<div class="pp">
+      <div class="pp-line"><i>Pre</i><span class="pp-track"><span class="pp-fill pp-pre" style="width:${pre}%"></span></span><b>${pre}%</b></div>
+      <div class="pp-line"><i>Post</i><span class="pp-track"><span class="pp-fill pp-post" style="width:${post}%"></span></span><b>${post}%</b></div>
+    </div>`;
+  }
+
+  function evidenceRow(label, color, list) {
     const sm = GauriResearch.summarise(list.map(s => s.delta_pct_points));
-    if (!sm.n) return `<tr><td>${label}</td><td>0</td><td colspan="5" class="muted-cell">No children recorded yet</td></tr>`;
+    if (!sm.n) {
+      return `<div class="ev-row ev-empty"><div class="ev-name"><span class="dot dot-${color}"></span>${label}</div><div class="muted-cell">No children yet</div></div>`;
+    }
     const meanPre = Math.round(list.reduce((a, s) => a + s.pre_score_pct, 0) / sm.n);
     const meanPost = Math.round(list.reduce((a, s) => a + s.post_score_pct, 0) / sm.n);
     const up = list.filter(s => s.delta_pct_points > 0).length;
-    const same = list.filter(s => s.delta_pct_points === 0).length;
     const down = list.filter(s => s.delta_pct_points < 0).length;
-    const ci = sm.n >= 2 ? `${fmtPts(sm.mean)} (${fmtPts(sm.lo)} to ${fmtPts(sm.hi)})` : `${fmtPts(sm.mean)} (need 2+ children)`;
-    const dz = isNaN(sm.dz) ? "–" : (Math.round(sm.dz * 100) / 100);
-    return `<tr><td>${label}</td><td>${sm.n}</td><td>${meanPre}%</td><td>${meanPost}%</td><td><strong>${ci}</strong></td><td>${up} ↑ / ${same} = / ${down} ↓</td><td>${dz}</td></tr>`;
+    const ci = sm.n >= 2 ? `95% CI ${fmtPts(sm.lo)} to ${fmtPts(sm.hi)}` : "needs 2+ children";
+    const cls = sm.mean > 0 ? "pill-good" : (sm.mean < 0 ? "pill-bad" : "pill-flat");
+    return `<div class="ev-row">
+      <div class="ev-name"><span class="dot dot-${color}"></span>${label}<small>${sm.n} ${sm.n === 1 ? "child" : "children"}</small></div>
+      ${prePostBars(meanPre, meanPost)}
+      <div class="ev-delta"><span class="pill ${cls}">${fmtPts(sm.mean)} pts</span><small>${ci}</small><small>↑${up} &nbsp;↓${down}</small></div>
+    </div>`;
   }
 
   function renderEvidencePanel(allSessions) {
@@ -1686,46 +1685,54 @@ const GauriEngine = (function () {
     const L = grp("learning"), C = grp("comparison");
 
     if (ind.length === 0) {
-      el.innerHTML = `<div class="empty-state-card"><p>No individual children recorded yet. Run a few children through Pre → Stories → Post (and, if you can, a few in the <em>Comparison group</em>) to see the evidence check.</p></div>`;
+      el.innerHTML = `<div class="empty-state-card"><p>No children yet. Run Pre → Stories → Post to see results here.</p></div>`;
       return;
     }
 
-    const msgs = [];
-    const smL = GauriResearch.summarise(L.map(s => s.delta_pct_points));
-    const smC = GauriResearch.summarise(C.map(s => s.delta_pct_points));
-    const cmp = GauriResearch.compareGroups(L.map(s => s.delta_pct_points), C.map(s => s.delta_pct_points));
+    const dL = L.map(s => s.delta_pct_points), dC = C.map(s => s.delta_pct_points);
+    const smL = GauriResearch.summarise(dL);
+    const cmp = GauriResearch.compareGroups(dL, dC);
 
-    if (L.length < 10) msgs.push({ t: "warn", x: `Only ${L.length} learning-group child${L.length === 1 ? "" : "ren"} so far. Treat everything here as a <strong>pilot</strong>; aim for 20+ per group before drawing conclusions.` });
-    if (smL.n >= 2) {
-      msgs.push({ t: smL.lo > 0 ? "good" : "info", x: smL.lo > 0
-        ? `Learning group: stated safe choices rose by ${fmtPts(smL.mean)} points on average and the 95% interval (${fmtPts(smL.lo)} to ${fmtPts(smL.hi)}) is above zero.`
-        : `Learning group: average change ${fmtPts(smL.mean)} points, but the 95% interval (${fmtPts(smL.lo)} to ${fmtPts(smL.hi)}) includes zero, so "no real change" cannot be ruled out yet.` });
-    }
-    if (cmp) {
-      msgs.push({ t: cmp.lo > 0 ? "good" : "info", x: cmp.lo > 0
-        ? `Learning group improved <strong>${fmtPts(cmp.diff)} points more</strong> than the comparison group (95% interval ${fmtPts(cmp.lo)} to ${fmtPts(cmp.hi)}). That is the stronger evidence, because repeating the test alone does not explain it.`
-        : `Learning vs comparison: difference ${fmtPts(cmp.diff)} points (95% interval ${fmtPts(cmp.lo)} to ${fmtPts(cmp.hi)}) includes zero, so the stories cannot yet be told apart from simply repeating the test.` });
-    } else {
-      msgs.push({ t: "warn", x: `<strong>No comparison group yet.</strong> Without one, a rise could just be practice from seeing similar questions twice. Run some children in <em>Comparison group</em> mode (Pre → Post with no stories) to check.` });
-    }
+    // One clear verdict
+    let verdict;
+    if (L.length < 10) verdict = { t: "warn", x: "🧪 Pilot: too few children to conclude" };
+    else if (cmp && cmp.lo > 0) verdict = { t: "good", x: "🎉 Stories likely helped (beat the comparison group)" };
+    else if (!cmp && smL.lo > 0) verdict = { t: "info", x: "📈 Scores rose, but no comparison group yet" };
+    else verdict = { t: "info", x: "🤔 Not clear yet" };
+
+    // Short notes (chips)
+    const chips = [];
+    if (cmp) chips.push({ t: cmp.lo > 0 ? "good" : "info", x: `Learning vs comparison: ${fmtPts(cmp.diff)} pts (${fmtPts(cmp.lo)} to ${fmtPts(cmp.hi)})` });
+    else chips.push({ t: "warn", x: "No comparison group yet" });
     const meanPreAll = ind.reduce((a, s) => a + s.pre_score_pct, 0) / ind.length;
-    if (meanPreAll >= 85) msgs.push({ t: "warn", x: `Average Pre score is already ${Math.round(meanPreAll)}%: children start near the top, so there is little room to improve (ceiling effect). Use harder items or an older group.` });
-    const lens = [...new Set(ind.map(s => s.n_items_post || 12))].sort((a, b) => a - b);
-    const rcText = lens.map(n => `${n} questions → about <strong>${GauriResearch.reliableChange(n)} points</strong>`).join("; ");
-    msgs.push({ t: "info", x: `One child's change must be this big to be more than chance (${rcText}). Use <strong>group averages</strong>, not one child's Δ.` });
-    msgs.push({ t: "info", x: `All scores are what children <em>say</em> they would do. Research shows this does not reliably predict real behaviour, so also use the <strong>Behaviour Observation</strong> tab.` });
+    if (meanPreAll >= 85) chips.push({ t: "warn", x: "Pre scores already high" });
+    const lens = [...new Set(ind.map(s => s.n_items_post || 12))].sort((a, b) => b - a);
+    chips.push({ t: "info", x: "One child's change needs " + lens.map(n => `${GauriResearch.reliableChange(n)}+ pts (${n} Qs)`).join(" · ") + " to count" });
+    chips.push({ t: "info", x: "Stated choices, not behaviour" });
 
     el.innerHTML = `
-      <div class="timeline-table-wrapper">
-        <table class="data-table">
-          <thead><tr><th>Group</th><th>Children</th><th>Mean Pre</th><th>Mean Post</th><th>Mean change, points (95% CI)</th><th>Improved / same / worse</th><th>Effect size (dz)</th></tr></thead>
-          <tbody>
-            ${evidenceRow("Learning (did the stories)", L)}
-            ${evidenceRow("Comparison (no stories)", C)}
-          </tbody>
-        </table>
+      <div class="ev-verdict ev-${verdict.t}">${verdict.x}</div>
+      <div class="ev-rows">
+        ${evidenceRow("Learning group", "leaf", L)}
+        ${evidenceRow("Comparison group", "sky", C)}
       </div>
-      <ul class="evidence-list">${msgs.map(m => `<li class="evidence-${m.t}">${m.x}</li>`).join("")}</ul>`;
+      <div class="chip-row">${chips.map(c => `<span class="chip chip-${c.t}">${c.x}</span>`).join("")}</div>`;
+  }
+
+  // Average Pre -> Post per skill across the learning group
+  function renderSkillSummary(allSessions) {
+    const el = document.getElementById("skills-container");
+    if (!el) return;
+    const ind = allSessions.filter(s => s.mode === "individual" && s.has_pre && s.has_post && (s.group || "learning") === "learning");
+    if (!ind.length) { el.innerHTML = `<div class="empty-state-card"><p>Appears after the first child finishes.</p></div>`; return; }
+    el.innerHTML = Object.keys(GAURI_DATA.skills).map(k => {
+      const pre = Math.round(ind.reduce((a, s) => a + ((s.skill_analysis[k] || {}).pre_pct || 0), 0) / ind.length);
+      const post = Math.round(ind.reduce((a, s) => a + ((s.skill_analysis[k] || {}).post_pct || 0), 0) / ind.length);
+      const d = post - pre;
+      const meta = GAURI_DATA.skills[k];
+      const name = state.lang === "en" ? meta.name_en : meta.name_hi;
+      return `<div class="sk-row"><span class="dot dot-${SKILL_COLORS[k] || "sky"}"></span><span class="sk-name">${escapeHtml(name)}</span>${prePostBars(pre, post)}<span class="pill ${d > 0 ? "pill-good" : d < 0 ? "pill-bad" : "pill-flat"}">${fmtPts(d)}</span></div>`;
+    }).join("");
   }
 
   function renderRetentionPanel(allSessions) {
@@ -1733,68 +1740,22 @@ const GauriEngine = (function () {
     if (!el) return;
     const fu = getFollowups();
     if (!fu.length) {
-      el.innerHTML = `<div class="empty-state-card"><p>No follow-up checks yet. Weeks after the stories, choose <strong>Follow-up check</strong> on the welcome screen and enter the same Child ID. Skills fade without boosters, so this shows whether they lasted.</p></div>`;
+      el.innerHTML = `<div class="empty-state-card"><p>No follow-ups yet. Weeks later, choose <strong>Follow-up check</strong> and use the same Child ID.</p></div>`;
       return;
     }
-    const rows = [];
     const drops = [];
-    fu.forEach(f => {
+    const rows = fu.slice(0, 6).map(f => {
       const base = allSessions.find(s => s.session_id === f.linked_session_id)
         || allSessions.find(s => s.participant_id === f.participant_id && s.mode === f.mode);
       const post = base ? base.post_score_pct : null;
-      const pre = base ? base.pre_score_pct : null;
       const change = post !== null ? f.followup_pct - post : null;
       if (change !== null) drops.push(change);
-      const days = base ? Math.max(0, Math.round((new Date(f.timestamp) - new Date(base.timestamp)) / 86400000)) : "–";
-      rows.push(`<tr><td>${escapeHtml(f.participant_id)}</td><td>${pre === null ? "–" : pre + "%"}</td><td>${post === null ? "–" : post + "%"}</td><td><strong>${f.followup_pct}%</strong></td><td>${change === null ? "–" : fmtPts(change)}</td><td>${days}</td></tr>`);
-    });
-    const sm = GauriResearch.summarise(drops);
-    el.innerHTML = `
-      <div class="timeline-table-wrapper"><table class="data-table">
-        <thead><tr><th>Child</th><th>Pre</th><th>Post</th><th>Follow-up</th><th>Change since Post</th><th>Days later</th></tr></thead>
-        <tbody>${rows.join("")}</tbody></table></div>
-      ${sm.n ? `<ul class="evidence-list"><li class="evidence-info">Average change from Post to Follow-up: <strong>${fmtPts(sm.mean)} points</strong>${sm.n >= 2 ? ` (95% CI ${fmtPts(sm.lo)} to ${fmtPts(sm.hi)})` : ""}. A negative number means skills faded, so plan <strong>booster sessions</strong>.</li></ul>` : ""}`;
-  }
-
-  // Item analysis: which questions are too easy / too hard, and are Form A and Form B equally hard?
-  function renderItemAnalysis(allSessions) {
-    const el = document.getElementById("item-analysis-container");
-    if (!el) return;
-    const acc = {};   // pair -> { A:{safe,total}, B:{safe,total} }
-    const totals = { A: { safe: 0, total: 0 }, B: { safe: 0, total: 0 } };
-    const add = (pair, form, safe, total) => {
-      if (!pair || !total) return;
-      acc[pair] = acc[pair] || { A: { safe: 0, total: 0 }, B: { safe: 0, total: 0 } };
-      acc[pair][form].safe += safe; acc[pair][form].total += total;
-      totals[form].safe += safe; totals[form].total += total;
-    };
-    allSessions.forEach(s => {
-      (s.raw_pre_responses || []).concat(s.raw_post_responses || []).forEach(r => {
-        const pair = r.pair || parseInt(String(r.question_id).split("_")[1], 10);
-        const form = r.form || (String(r.question_id).startsWith("pre_") ? "A" : "B");
-        if (r.mode === "classroom") add(pair, form, r.safe_votes || 0, r.total_votes || 0);
-        else add(pair, form, r.is_safe ? 1 : 0, 1);
-      });
-    });
-    const pairs = Object.keys(acc).map(Number).sort((a, b) => a - b);
-    if (!pairs.length) { el.innerHTML = `<div class="empty-state-card"><p>No answers recorded yet.</p></div>`; return; }
-    const pct = o => o.total ? Math.round(o.safe / o.total * 100) : null;
-    const cell = o => o.total ? `${pct(o)}% <span class="muted-cell">(n=${o.total})</span>` : "–";
-    const rows = pairs.map(n => {
-      const a = acc[n].A, b = acc[n].B;
-      const flags = [];
-      [a, b].forEach(o => { if (o.total >= 5 && pct(o) >= 90) flags.push("too easy"); if (o.total >= 5 && pct(o) <= 10) flags.push("too hard"); });
-      if (a.total >= 5 && b.total >= 5 && Math.abs(pct(a) - pct(b)) > 25) flags.push("forms unequal");
-      const story = GAURI_DATA.learningScenarios[n - 1];
-      const skills = (GAURI_DATA.assessmentTests[n] || []).map(k => (GAURI_DATA.skills[k] || {}).name_en || k).join(", ");
-      return `<tr><td>${n}</td><td>${story ? escapeHtml(story.title_en) : ""}</td><td class="muted-cell">${escapeHtml(skills)}</td><td>${cell(a)}</td><td>${cell(b)}</td><td>${flags.length ? "⚠️ " + [...new Set(flags)].join(", ") : "ok"}</td></tr>`;
+      const days = base ? Math.max(0, Math.round((new Date(f.timestamp) - new Date(base.timestamp)) / 86400000)) : null;
+      const cls = change === null ? "pill-flat" : change > 0 ? "pill-good" : change < 0 ? "pill-bad" : "pill-flat";
+      return `<div class="rt-row"><b>${escapeHtml(f.participant_id)}</b><span>${post === null ? "–" : post + "%"} → <b>${f.followup_pct}%</b></span><span class="pill ${cls}">${change === null ? "–" : fmtPts(change)}</span><small>${days === null ? "" : days + " d"}</small></div>`;
     }).join("");
-    const fa = pct(totals.A), fb = pct(totals.B);
-    el.innerHTML = `
-      <div class="timeline-table-wrapper"><table class="data-table">
-        <thead><tr><th>Pair</th><th>Story</th><th>Skills tested</th><th>Form A: % safe</th><th>Form B: % safe</th><th>Check</th></tr></thead>
-        <tbody>${rows}</tbody></table></div>
-      <ul class="evidence-list"><li class="evidence-info">Overall Form A ${fa === null ? "–" : fa + "%"} vs Form B ${fb === null ? "–" : fb + "%"}. Because the Pre/Post order alternates between children, any difference between the forms cancels out of the Δ. If the gap is large, rewrite the easier items.</li></ul>`;
+    const sm = GauriResearch.summarise(drops);
+    el.innerHTML = rows + (sm.n ? `<div class="chip-row"><span class="chip chip-info">Avg Post → Follow-up: ${fmtPts(sm.mean)} pts${sm.mean < 0 ? " (plan boosters)" : ""}</span></div>` : "");
   }
 
   // =========================================================================
@@ -2281,36 +2242,6 @@ const GauriEngine = (function () {
       localStorage.removeItem(STORAGE_KEY_SESSIONS);
       renderDashboard();
     }
-  }
-
-  function renderLifeCompetencies() {
-    const container = document.getElementById("competencies-container");
-    if (!container) return;
-    container.innerHTML = "";
-
-    // The 4 original rules + one rule for each newer story (taken from that story's own key rule)
-    const extra = GAURI_DATA.learningScenarios.slice(4).map(st => ({
-      icon: st.icon, title_en: st.title_en, title_hi: st.title_hi,
-      takeaway_en: st.keyRule_en, takeaway_hi: st.keyRule_hi
-    }));
-    GAURI_DATA.lifeCompetencies.concat(extra).forEach(comp => {
-      const card = document.createElement("div");
-      card.className = "competency-card card-pop";
-
-      const title = state.lang === "en" ? comp.title_en : comp.title_hi;
-      const takeaway = state.lang === "en" ? comp.takeaway_en : comp.takeaway_hi;
-      const statusText = state.lang === "en" ? "✓ Practical Takeaway Rule" : "✓ मुख्य सुरक्षा नियम";
-
-      card.innerHTML = `
-        <div class="comp-header">
-          <span class="comp-icon">${comp.icon}</span>
-          <span class="comp-title">${escapeHtml(title)}</span>
-        </div>
-        <p class="comp-takeaway">${escapeHtml(takeaway)}</p>
-        <span class="comp-status-tag">${escapeHtml(statusText)}</span>
-      `;
-      container.appendChild(card);
-    });
   }
 
   // Draw Radar Chart Strictly From Measured Data

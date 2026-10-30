@@ -64,8 +64,8 @@
       choices: [
         {
           id: "l5_c1",
-          text_en: "Follow the adult behind the bushes to look for the puppy.",
-          text_hi: "पिल्ला ढूँढने के लिए उस व्यक्ति के साथ झाड़ियों के पीछे चले जाएँ।",
+          text_en: "Follow him behind the bushes.",
+          text_hi: "उसके साथ झाड़ियों के पीछे चले जाएँ।",
           rating: "unsafe",
           skills: NONE,
           guidanceTitle_en: "Let's Pause and Think 🌱",
@@ -76,8 +76,8 @@
         },
         {
           id: "l5_c2",
-          text_en: "Say 'No, sorry!' in a loud voice, walk back to your friends and teacher, and tell them what happened.",
-          text_hi: "ज़ोर से 'नहीं, माफ़ कीजिए!' कहें, अपने दोस्तों और शिक्षक के पास लौटें और उन्हें पूरी बात बताएँ।",
+          text_en: "Say a loud 'No, sorry!' and go tell your teacher.",
+          text_hi: "ज़ोर से 'नहीं, माफ़ कीजिए!' कहें और टीचर को बताएँ।",
           rating: "safe",
           skills: sk(1, 0, 1, 1, 1, 1),
           guidanceTitle_en: "Brilliant: No, Go, Tell! ⭐",
@@ -88,8 +88,8 @@
         },
         {
           id: "l5_c3",
-          text_en: "Say 'No thank you' and keep playing without telling anyone.",
-          text_hi: "'नहीं, धन्यवाद' कहें और किसी को बताए बिना खेलते रहें।",
+          text_en: "Say 'No thanks', keep playing, tell no one.",
+          text_hi: "'नहीं, धन्यवाद' कहें, खेलते रहें, किसी को न बताएँ।",
           rating: "partial",
           skills: sk(1, 0, 0, 1, 1, 0),
           guidanceTitle_en: "Good 'No' - Now Add the 'Tell' 🌱",
@@ -100,8 +100,8 @@
         },
         {
           id: "l5_c4",
-          text_en: "Say 'I'll ask my teacher to help you' and go straight to your teacher.",
-          text_hi: "'मैं अपने शिक्षक को आपकी मदद के लिए बुलाता/बुलाती हूँ' कहें और सीधे शिक्षक के पास जाएँ।",
+          text_en: "Say 'Ask a grown-up' and go to your teacher.",
+          text_hi: "कहें 'किसी बड़े से पूछिए' और टीचर के पास जाएँ।",
           rating: "safe",
           skills: sk(1, 1, 1, 1, 1, 1),
           guidanceTitle_en: "Smart and Kind! ⭐",
@@ -143,8 +143,8 @@
       choices: [
         {
           id: "l6_c1",
-          text_en: "Open the door to take the parcel.",
-          text_hi: "पार्सल लेने के लिए दरवाज़ा खोल दें।",
+          text_en: "Open the door and take the parcel.",
+          text_hi: "दरवाज़ा खोलकर पार्सल ले लें।",
           rating: "unsafe",
           skills: NONE,
           guidanceTitle_en: "Let's Pause and Think 🌱",
@@ -155,8 +155,8 @@
         },
         {
           id: "l6_c2",
-          text_en: "Don't open the door. Go and tell the grown-up at home that someone is at the door.",
-          text_hi: "दरवाज़ा न खोलें। घर के बड़े के पास जाकर बताएँ कि दरवाज़े पर कोई है।",
+          text_en: "Don't open. Tell the grown-up at home.",
+          text_hi: "दरवाज़ा न खोलें। घर के बड़े को बताएँ।",
           rating: "safe",
           skills: sk(1, 1, 1, 1, 1, 1),
           guidanceTitle_en: "Perfect: Don't Open, Go and Tell! ⭐",
@@ -167,8 +167,8 @@
         },
         {
           id: "l6_c3",
-          text_en: "Shout through the door: 'I'm home alone, come back later!'",
-          text_hi: "दरवाज़े के पीछे से चिल्लाएँ: 'मैं घर पर अकेला हूँ, बाद में आना!'",
+          text_en: "Shout 'I'm home alone, come back later!'",
+          text_hi: "चिल्लाएँ 'मैं घर पर अकेला हूँ, बाद में आना!'",
           rating: "partial",
           skills: sk(1, 0, 0, 1, 1, 0),
           guidanceTitle_en: "Good That You Didn't Open! 🌱",
@@ -179,8 +179,8 @@
         },
         {
           id: "l6_c4",
-          text_en: "Ask through the door who sent them, then open it if the answer sounds right.",
-          text_hi: "दरवाज़े के पीछे से पूछें कि उन्हें किसने भेजा है, और जवाब ठीक लगे तो दरवाज़ा खोल दें।",
+          text_en: "Ask who sent them, then open if it sounds right.",
+          text_hi: "पूछें किसने भेजा, ठीक लगे तो खोल दें।",
           rating: "unsafe",
           skills: sk(1, 0, 0, 0, 0, 0),
           guidanceTitle_en: "Let's Think About That 🌱",
@@ -222,8 +222,8 @@
       choices: [
         {
           id: "l7_c1",
-          text_en: "Run across quickly while there is a gap between scooters.",
-          text_hi: "स्कूटरों के बीच खाली जगह दिखते ही जल्दी से दौड़कर पार कर लें।",
+          text_en: "Run across in a gap between scooters.",
+          text_hi: "स्कूटरों के बीच खाली जगह में भागकर पार करें।",
           rating: "unsafe",
           skills: NONE,
           guidanceTitle_en: "Let's Pause and Think 🌱",
@@ -234,8 +234,8 @@
         },
         {
           id: "l7_c2",
-          text_en: "Hold your grown-up's hand, stop at the edge, look right-left-right, and cross on the zebra lines when vehicles have stopped.",
-          text_hi: "बड़े का हाथ पकड़ें, किनारे पर रुकें, दाएँ-बाएँ-दाएँ देखें और वाहन रुकने पर ज़ेबरा लाइनों से पार करें।",
+          text_en: "Hold a grown-up's hand, look right-left-right, cross on the zebra.",
+          text_hi: "बड़े का हाथ पकड़ें, दाएँ-बाएँ-दाएँ देखें, ज़ेबरा पर पार करें।",
           rating: "safe",
           skills: sk(1, 0, 1, 0, 1, 1),
           guidanceTitle_en: "Road Safety Star! ⭐",
@@ -246,8 +246,8 @@
         },
         {
           id: "l7_c3",
-          text_en: "Cross between two parked cars, where your friend is crossing.",
-          text_hi: "जहाँ आपका दोस्त पार कर रहा है, वहीं दो खड़ी गाड़ियों के बीच से पार कर लें।",
+          text_en: "Cross between two parked cars.",
+          text_hi: "खड़ी गाड़ियों के बीच से पार करें।",
           rating: "unsafe",
           skills: NONE,
           guidanceTitle_en: "Let's Pause and Think 🌱",
@@ -258,8 +258,8 @@
         },
         {
           id: "l7_c4",
-          text_en: "Use the zebra lines, but wave to a friend on the other side while you walk.",
-          text_hi: "ज़ेबरा लाइनों से जाएँ, लेकिन चलते-चलते दूसरी ओर खड़े दोस्त को हाथ हिलाएँ।",
+          text_en: "Use the zebra but wave to a friend while walking.",
+          text_hi: "ज़ेबरा पर चलें, पर दोस्त को हाथ हिलाते हुए।",
           rating: "partial",
           skills: sk(1, 0, 0, 0, 0, 1),
           guidanceTitle_en: "Nearly There! Keep Your Eyes on the Road 🌱",
@@ -301,8 +301,8 @@
       choices: [
         {
           id: "l8_c1",
-          text_en: "Hide under the bed until the beeping stops.",
-          text_hi: "बीप बंद होने तक बिस्तर के नीचे छिप जाएँ।",
+          text_en: "Hide under the bed.",
+          text_hi: "बिस्तर के नीचे छिप जाएँ।",
           rating: "unsafe",
           skills: NONE,
           guidanceTitle_en: "Let's Pause and Think 🌱",
@@ -313,8 +313,8 @@
         },
         {
           id: "l8_c2",
-          text_en: "Walk out calmly, go to the family meeting place, and wait for a grown-up.",
-          text_hi: "शांति से बाहर चलें, परिवार की मिलने की जगह पर जाएँ और किसी बड़े का इंतज़ार करें।",
+          text_en: "Walk out to the meeting place and wait.",
+          text_hi: "चलकर मिलने की जगह पर जाएँ और रुकें।",
           rating: "safe",
           skills: sk(1, 0, 1, 0, 1, 1),
           guidanceTitle_en: "Calm and Clever! ⭐",
@@ -325,8 +325,8 @@
         },
         {
           id: "l8_c3",
-          text_en: "Go back to your room to get your favourite toy first.",
-          text_hi: "पहले अपना पसंदीदा खिलौना लेने अपने कमरे में वापस जाएँ।",
+          text_en: "Go back for your favourite toy.",
+          text_hi: "पसंदीदा खिलौना लेने वापस जाएँ।",
           rating: "unsafe",
           skills: NONE,
           guidanceTitle_en: "Let's Pause and Think 🌱",
@@ -338,7 +338,7 @@
         {
           id: "l8_c4",
           text_en: "Run outside and keep running down the street.",
-          text_hi: "बाहर भागें और गली में दूर तक भागते रहें।",
+          text_hi: "बाहर भागें और गली में भागते रहें।",
           rating: "partial",
           skills: sk(1, 0, 0, 0, 0, 0),
           guidanceTitle_en: "Right Idea: Now Stay at the Meeting Place 🌱",
@@ -380,8 +380,8 @@
       choices: [
         {
           id: "l9_c1",
-          text_en: "Climb the wall so they won't laugh at you.",
-          text_hi: "दीवार पर चढ़ जाएँ ताकि वे आप पर न हँसें।",
+          text_en: "Climb the wall so they won't laugh.",
+          text_hi: "दीवार पर चढ़ जाएँ ताकि वे हँसें नहीं।",
           rating: "unsafe",
           skills: NONE,
           guidanceTitle_en: "Let's Pause and Think 🌱",
@@ -392,8 +392,8 @@
         },
         {
           id: "l9_c2",
-          text_en: "Say 'No, I don't want to. I could get hurt.'",
-          text_hi: "कहें 'नहीं, मुझे नहीं चढ़ना। मुझे चोट लग सकती है।'",
+          text_en: "Say 'No, I could get hurt.'",
+          text_hi: "कहें 'नहीं, मुझे चोट लग सकती है।'",
           rating: "safe",
           skills: sk(1, 0, 0, 1, 1, 1),
           guidanceTitle_en: "Refuse + Explain! ⭐",
@@ -404,8 +404,8 @@
         },
         {
           id: "l9_c3",
-          text_en: "Walk away to the swings and ask others to join you there.",
-          text_hi: "झूलों की ओर चले जाएँ और दूसरों को भी वहाँ आने को कहें।",
+          text_en: "Walk to the swings and invite others.",
+          text_hi: "झूलों पर जाएँ और दूसरों को बुलाएँ।",
           rating: "safe",
           skills: sk(1, 0, 0, 1, 1, 1),
           guidanceTitle_en: "Leave + Suggest Something New! ⭐",
@@ -416,8 +416,8 @@
         },
         {
           id: "l9_c4",
-          text_en: "Stay near the wall without climbing and say nothing while the others climb.",
-          text_hi: "दीवार के पास ही खड़े रहें, चढ़ें नहीं, और जब बाक़ी चढ़ें तो कुछ न कहें।",
+          text_en: "Stand by the wall and say nothing.",
+          text_hi: "दीवार के पास चुपचाप खड़े रहें।",
           rating: "partial",
           skills: sk(1, 0, 0, 1, 0, 0),
           guidanceTitle_en: "Good Choice Not to Climb 🌱",
@@ -459,8 +459,8 @@
       choices: [
         {
           id: "l10_c1",
-          text_en: "Send it on to other groups because everyone else is doing it.",
-          text_hi: "इसे दूसरे ग्रुप में भी भेज दें क्योंकि बाक़ी सब भी भेज रहे हैं।",
+          text_en: "Forward it, everyone is doing it.",
+          text_hi: "आगे भेज दें, सब कर रहे हैं।",
           rating: "unsafe",
           skills: NONE,
           guidanceTitle_en: "Let's Pause and Think 🌱",
@@ -471,8 +471,8 @@
         },
         {
           id: "l10_c2",
-          text_en: "Don't share it. Save a screenshot, tell a trusted grown-up, and send a kind message to Rohan.",
-          text_hi: "इसे आगे न भेजें। स्क्रीनशॉट सुरक्षित रखें, किसी भरोसेमंद बड़े को बताएँ और रोहन को एक अच्छा संदेश भेजें।",
+          text_en: "Don't share. Tell a grown-up and be kind to Rohan.",
+          text_hi: "आगे न भेजें। बड़े को बताएँ और रोहन से अच्छा व्यवहार करें।",
           rating: "safe",
           skills: sk(1, 0, 1, 1, 1, 1),
           guidanceTitle_en: "Kind and Brave! ⭐",
@@ -483,8 +483,8 @@
         },
         {
           id: "l10_c3",
-          text_en: "Reply with an even meaner joke to the person who posted it.",
-          text_hi: "जिसने पोस्ट किया है उसे और भी बुरा मज़ाक लिखकर जवाब दें।",
+          text_en: "Reply with a meaner joke.",
+          text_hi: "और बुरा मज़ाक लिखकर जवाब दें।",
           rating: "partial",
           skills: sk(1, 0, 0, 0, 0, 0),
           guidanceTitle_en: "Understandable, But There's a Better Way 🌱",
@@ -495,8 +495,8 @@
         },
         {
           id: "l10_c4",
-          text_en: "Ignore the chat and say nothing to anyone.",
-          text_hi: "चैट को अनदेखा करें और किसी से कुछ न कहें।",
+          text_en: "Ignore the chat and tell no one.",
+          text_hi: "चैट अनदेखी करें और किसी को न बताएँ।",
           rating: "partial",
           skills: sk(1, 0, 0, 0, 1, 0),
           guidanceTitle_en: "A Good Start, Now Tell Someone 🌱",
@@ -538,8 +538,8 @@
       choices: [
         {
           id: "l11_c1",
-          text_en: "Keep the secret because you don't want to upset the bigger person.",
-          text_hi: "राज़ रखें क्योंकि आप उस बड़े को नाराज़ नहीं करना चाहते।",
+          text_en: "Keep the secret so they're not upset.",
+          text_hi: "राज़ रखें ताकि वे नाराज़ न हों।",
           rating: "unsafe",
           skills: NONE,
           guidanceTitle_en: "Let's Pause and Think 🌱",
@@ -550,8 +550,8 @@
         },
         {
           id: "l11_c2",
-          text_en: "Say 'No, I don't like this!', go to a grown-up you trust, and tell them what happened.",
-          text_hi: "कहें 'नहीं, मुझे यह पसंद नहीं!', किसी भरोसेमंद बड़े के पास जाएँ और उन्हें बताएँ कि क्या हुआ।",
+          text_en: "Say 'No!', go to a grown-up you trust, and tell.",
+          text_hi: "'नहीं!' कहें, भरोसेमंद बड़े के पास जाकर बताएँ।",
           rating: "safe",
           skills: sk(1, 0, 1, 1, 1, 1),
           guidanceTitle_en: "No, Go, Tell: Exactly Right! ⭐",
@@ -562,8 +562,8 @@
         },
         {
           id: "l11_c3",
-          text_en: "Say 'No!' and walk away, but tell no one because you feel embarrassed.",
-          text_hi: "'नहीं!' कहें और चले जाएँ, लेकिन शर्म की वजह से किसी को न बताएँ।",
+          text_en: "Say 'No!' and walk away, but tell no one.",
+          text_hi: "'नहीं!' कहकर चले जाएँ, पर किसी को न बताएँ।",
           rating: "partial",
           skills: sk(1, 0, 0, 1, 1, 0),
           guidanceTitle_en: "Brave 'No' - Now the Most Important Step 🌱",
@@ -574,8 +574,8 @@
         },
         {
           id: "l11_c4",
-          text_en: "Tell a grown-up you trust. If they are busy or don't listen, tell another grown-up until someone listens.",
-          text_hi: "किसी भरोसेमंद बड़े को बताएँ। अगर वे व्यस्त हों या न सुनें तो तब तक दूसरे बड़े को बताएँ जब तक कोई सुन न ले।",
+          text_en: "Tell a grown-up. If they don't listen, tell another.",
+          text_hi: "बड़े को बताएँ। न सुनें तो दूसरे को बताएँ।",
           rating: "safe",
           skills: sk(1, 0, 1, 1, 1, 1),
           guidanceTitle_en: "Keep Telling Until Someone Listens! ⭐",
@@ -617,8 +617,8 @@
       choices: [
         {
           id: "l12_c1",
-          text_en: "Go with Uncle Raj without telling anyone, because you know him.",
-          text_hi: "किसी को बताए बिना राज अंकल के साथ चले जाएँ, क्योंकि आप उन्हें जानते हैं।",
+          text_en: "Go with Uncle Raj without telling anyone.",
+          text_hi: "किसी को बताए बिना राज अंकल के साथ चले जाएँ।",
           rating: "partial",
           skills: sk(1, 0, 0, 0, 0, 0),
           guidanceTitle_en: "Right Person, One Step Missing 🌱",
@@ -629,8 +629,8 @@
         },
         {
           id: "l12_c2",
-          text_en: "Greet him, tell your teacher, let them check the pick-up plan, and then go with Uncle Raj.",
-          text_hi: "उन्हें नमस्ते करें, शिक्षक को बताएँ, उन्हें पिक-अप योजना जाँचने दें और फिर राज अंकल के साथ जाएँ।",
+          text_en: "Tell your teacher, let them check, then go with Uncle Raj.",
+          text_hi: "टीचर को बताएँ, उन्हें जाँचने दें, फिर राज अंकल के साथ जाएँ।",
           rating: "safe",
           skills: sk(1, 1, 1, 0, 1, 1),
           guidanceTitle_en: "Safe and Not Scared! ⭐",
@@ -641,8 +641,8 @@
         },
         {
           id: "l12_c3",
-          text_en: "Refuse to go and hide behind the gate because you are scared of every grown-up.",
-          text_hi: "जाने से मना कर दें और गेट के पीछे छिप जाएँ क्योंकि आप हर बड़े से डरते हैं।",
+          text_en: "Hide behind the gate, scared of everyone.",
+          text_hi: "डरकर गेट के पीछे छिप जाएँ।",
           rating: "partial",
           skills: sk(0, 0, 0, 1, 0, 0),
           guidanceTitle_en: "It's Okay to Be Unsure 🌱",
@@ -653,8 +653,8 @@
         },
         {
           id: "l12_c4",
-          text_en: "Walk home alone because you don't want to wait.",
-          text_hi: "इंतज़ार नहीं करना है इसलिए अकेले पैदल घर चले जाएँ।",
+          text_en: "Walk home alone, you don't want to wait.",
+          text_hi: "इंतज़ार न करें, अकेले घर चल दें।",
           rating: "unsafe",
           skills: NONE,
           guidanceTitle_en: "Let's Pause and Think 🌱",

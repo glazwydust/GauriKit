@@ -11,19 +11,19 @@ const GAURI_DATA = {
       tagline: "Safe Choices, Smart Minds",
       navDashboard: "Researcher Hub",
       welcomeTitle: "Welcome to GauriKit",
-      welcomeDesc: "A calm and interactive story space to practice real-world situations, evaluate decision-making and build lifelong safety instincts.",
+      welcomeDesc: "A calm, interactive story space to practice real-world situations, evaluate decision-making, and build lifelong safety instincts.",
       participantIdLabel: "Child / Class ID:",
-      institutionLabel: "School / Institution :",
+      institutionLabel: "School / Institution:",
       randomBtn: "Randomize",
-      ageGroupLabel: "Age Group:",
-      startJourneyBtn: "Start Safety Journey ",
-      startNewSessionBtn: "Start Next Session",
+      ageGroupLabel: "Age Group / Grade:",
+      startJourneyBtn: "Start Safety Journey 🚀",
+      startNewSessionBtn: "Start Next Session ➔",
       preTestTag: "Pre-Assessment: Baseline Instincts",
       postTestTag: "Post-Assessment: Learning Transfer",
       questionStep: "Situation",
       whatWouldYouDo: "What would you do?",
       hubTitle: "Interactive Safety Stories",
-      hubSubtitle: "Slide through the stories and pick any one to practise. Try each choice and say the safe answer out loud!",
+      hubSubtitle: "Slide through the stories and pick any one to practise. Try each choice, and say the safe answer out loud!",
       slideHint: "Slide to explore all the stories, then tap one to begin.",
       proceedPostBtn: "Ready for Final Post-Assessment ⭐",
       backToStories: "Stories Hub",
@@ -32,20 +32,27 @@ const GAURI_DATA = {
       youTag: "You",
       tryAnotherChoice: "Try Another Choice ↺",
       continueStory: "Continue to Next Story ⭐",
-      dashboardTitle: "Educator & Researcher Analytics Hub",
-      dashboardSubtitle: "Records what children say they would do in each situation (stated choices). It does not measure what a child would do in a real situation.",
-      exportJsonBtn: "Export JSON",
+      dashboardTitle: "Results",
+      kpiChildren: "Children",
+      kpiClasses: "Classes",
+      kpiAvg: "Avg change",
+      kpiImproved: "Improved",
+      evidenceTitle: "Did it work?",
+      skillsTitle: "Skills, group average",
+      lastTitle: "Do skills last?",
+      dashboardSubtitle: "Pre → Post: what children say they would do.",
+      exportJsonBtn: "JSON",
       exportCsvBtn: "Export CSV",
-      exportMasterCsvBtn: "Download Master CSV",
+      exportMasterCsvBtn: "CSV",
       clearHistoryBtn: "Clear Local History",
-      printReportBtn: "Print Report",
+      printReportBtn: "Print",
       
       // Dashboard Tabs
-      tabOverview: "Overview & Stats",
-      tabIndividual: " Individual Student Explorer",
-      tabClassroom: " Classroom Discussion Analytics",
-      tabAgeCohorts: " Data-Driven Age Cohorts",
-      tabMasterRoster: " Master Session Records",
+      tabOverview: "📊 Overview",
+      tabIndividual: "🧒 Child",
+      tabClassroom: "🏫 Class",
+      tabAgeCohorts: "👥 Ages",
+      tabMasterRoster: "📁 Records",
       
       // Overview Metric Labels
       statTotalParticipants: "Total Participants",
@@ -98,15 +105,15 @@ const GAURI_DATA = {
       
       // Teacher Guide
       teacherGuideTitle: "Teacher / Facilitator Guide",
-      askTheClass: "Ask the Class :",
+      askTheClass: "Ask the Class (Discussion Prompt):",
       keySafetyRule: "Key Safety Lesson to Teach:",
-      hideTeacherGuide: "Hide Teacher Guide ",
-      showTeacherGuide: "Show Teacher Guide ",
+      hideTeacherGuide: "Hide Teacher Guide 👁️",
+      showTeacherGuide: "Show Teacher Guide 💡",
       
       // Facilitation Mode
       modeSelectLabel: "Facilitation Mode:",
-      modeClassroom: "Whole-Classroom Discussion & Poll Mode",
-      modeIndividual: " Single Student Mode",
+      modeClassroom: "🏫 Whole-Classroom Discussion & Poll Mode",
+      modeIndividual: "🧑‍🎓 Single Student Mode",
       classPollTitle: "Live Class Poll & Show-of-Hands",
       handsUpPrompt: "Count show-of-hands for each option:",
       classConsensusBadge: "Classroom Consensus:",
@@ -117,7 +124,7 @@ const GAURI_DATA = {
       radarTitle: "Cognitive Transfer Radar",
       radarSub: "Pre-Assessment Baseline (Amber) vs Post-Assessment Transfer (Emerald)",
       trajectoryTitle: "Decision & Learning Trajectory Log",
-      trajectorySub: "Chronological record of situations encountered, choices made and reflection cycles."
+      trajectorySub: "Chronological record of situations encountered, choices made, and reflection cycles."
     },
     hi: {
       tagline: "सुरक्षित विकल्प, सजग मन",
@@ -125,7 +132,7 @@ const GAURI_DATA = {
       welcomeTitle: "गौरीकिट (GauriKit) में आपका स्वागत है",
       welcomeDesc: "वास्तविक स्थितियों को समझने, सही निर्णय लेने और खुद को सुरक्षित रखने का एक शांत और इंटरैक्टिव मंच।",
       participantIdLabel: "बच्चा / कक्षा आईडी:",
-      institutionLabel: "स्कूल / संस्था (केवल इसी कंप्यूटर पर सुरक्षित):",
+      institutionLabel: "स्कूल / संस्था:",
       randomBtn: "बदलें",
       ageGroupLabel: "आयु वर्ग / कक्षा स्तर:",
       startJourneyBtn: "सुरक्षा यात्रा शुरू करें 🚀",
@@ -144,20 +151,27 @@ const GAURI_DATA = {
       youTag: "आप",
       tryAnotherChoice: "दूसरा विकल्प चुनें ↺",
       continueStory: "अगली कहानी पर जाएँ ⭐",
-      dashboardTitle: "शोधकर्ता एवं शिक्षक मूल्यांकन केंद्र",
-      dashboardSubtitle: "यह दर्ज करता है कि बच्चे हर स्थिति में क्या करने को कहते हैं (बताए गए विकल्प)। यह नहीं मापता कि असली स्थिति में बच्चा क्या करेगा।",
-      exportJsonBtn: "JSON डाउनलोड करें",
+      dashboardTitle: "परिणाम",
+      kpiChildren: "बच्चे",
+      kpiClasses: "कक्षाएँ",
+      kpiAvg: "औसत बदलाव",
+      kpiImproved: "सुधार",
+      evidenceTitle: "क्या असर हुआ?",
+      skillsTitle: "कौशल, समूह औसत",
+      lastTitle: "क्या कौशल टिके?",
+      dashboardSubtitle: "पहले → बाद: बच्चे क्या करने को कहते हैं।",
+      exportJsonBtn: "JSON",
       exportCsvBtn: "CSV डाउनलोड करें",
-      exportMasterCsvBtn: "मास्टर CSV डाउनलोड करें",
+      exportMasterCsvBtn: "CSV",
       clearHistoryBtn: "इतिहास साफ़ करें",
-      printReportBtn: "रिपोर्ट प्रिंट करें",
+      printReportBtn: "प्रिंट",
       
       // Dashboard Tabs
-      tabOverview: "📊 समग्र विवरण",
-      tabIndividual: "🧑‍🎓 छात्र विवरण",
-      tabClassroom: "🏫 कक्षा चर्चा विश्लेषण",
-      tabAgeCohorts: "👥 आयु-वर्ग तुलना",
-      tabMasterRoster: "📁 सभी दर्ज सत्र",
+      tabOverview: "📊 सारांश",
+      tabIndividual: "🧒 बच्चा",
+      tabClassroom: "🏫 कक्षा",
+      tabAgeCohorts: "👥 आयु",
+      tabMasterRoster: "📁 रिकॉर्ड",
       
       // Overview Metric Labels
       statTotalParticipants: "कुल प्रतिभागी",
@@ -354,22 +368,22 @@ const GAURI_DATA = {
       choices: [
         {
           id: "pre_1_a",
-          text_en: "Walk to the van to look at the flavors.",
-          text_hi: "आइसक्रीम देखने के लिए वैन के पास चले जाएँ।",
+          text_en: "Walk to the van to see the flavours.",
+          text_hi: "फ़्लेवर देखने वैन के पास जाएँ।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         },
         {
           id: "pre_1_b",
-          text_en: "Stay where your family can see you, say 'No thank you' and tell your parents.",
-          text_hi: "जहाँ आपके परिवारजन देख सकें वहीं रहें, 'नहीं शुक्रिया' कहें और माता-पिता को बताएं।",
+          text_en: "Stay in sight, say 'No thank you', tell your parents.",
+          text_hi: "नज़र में रहें, 'नहीं, धन्यवाद' कहें, माता-पिता को बताएँ।",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           isSafe: true
         },
         {
           id: "pre_1_c",
-          text_en: "Tell other kids to go get the free ice cream.",
-          text_hi: "दूसरे बच्चों को मुफ्त आइसक्रीम लेने के लिए कहें।",
+          text_en: "Tell other kids to go get the ice cream.",
+          text_hi: "दूसरे बच्चों को आइसक्रीम लेने भेजें।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         }
@@ -386,22 +400,22 @@ const GAURI_DATA = {
       choices: [
         {
           id: "pre_2_a",
-          text_en: "Type your real name and city since they are friendly.",
-          text_hi: "अपना असली नाम और शहर लिख दें क्योंकि वे बहुत दोस्ताना लग रहे हैं।",
+          text_en: "Type your real name and city.",
+          text_hi: "अपना असली नाम और शहर लिख दें।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         },
         {
           id: "pre_2_b",
-          text_en: "Keep your gaming nickname, never share personal details, and tell a parent if they keep asking.",
-          text_hi: "केवल गेम का उपनाम रखें, निजी जानकारी कभी न दें और बार-बार पूछने पर माता-पिता को बताएं।",
+          text_en: "Share only your nickname; tell a parent if they keep asking.",
+          text_hi: "सिर्फ़ उपनाम बताएँ; बार-बार पूछें तो माता-पिता को बताएँ।",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           isSafe: true
         },
         {
           id: "pre_2_c",
-          text_en: "Ask them for their name and address instead.",
-          text_hi: "बदले में उनसे उनका नाम और पता पूछें।",
+          text_en: "Ask for their name and address instead.",
+          text_hi: "बदले में उनका नाम और पता पूछें।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         }
@@ -418,22 +432,22 @@ const GAURI_DATA = {
       choices: [
         {
           id: "pre_3_a",
-          text_en: "Run out through the main gates to search the busy parking lot.",
-          text_hi: "भीड़ भरे पार्किंग क्षेत्र में खोजने के लिए मुख्य द्वार से बाहर भागें।",
+          text_en: "Run out the gates to search the parking lot.",
+          text_hi: "गेट से बाहर पार्किंग में ढूँढने भागें।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         },
         {
           id: "pre_3_b",
-          text_en: "Stay in one safe spot and look for an official park worker with a uniform or nametag for help.",
-          text_hi: "एक सुरक्षित स्थान पर रुकें, और वर्दी या नेमटैग वाले आधिकारिक कर्मचारी से मदद मांगें।",
+          text_en: "Stay put and ask a uniformed worker for help.",
+          text_hi: "एक जगह रुकें और वर्दी वाले कर्मचारी से मदद माँगें।",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           isSafe: true
         },
         {
           id: "pre_3_c",
-          text_en: "Ask an unknown visitor leaving the park to give you a ride home.",
-          text_hi: "मेले से बाहर जा रहे किसी अनजान व्यक्ति से घर छोड़ने को कहें।",
+          text_en: "Ask a stranger leaving the fair for a ride home.",
+          text_hi: "मेले से जा रहे अनजान से घर छोड़ने को कहें।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         }
@@ -450,22 +464,22 @@ const GAURI_DATA = {
       choices: [
         {
           id: "pre_4_a",
-          text_en: "Keep the secret and hide the pieces under the sofa.",
-          text_hi: "रहस्य छुपाएं और टुकड़ों को सोफे के नीचे छिपा दें।",
+          text_en: "Keep the secret and hide the pieces.",
+          text_hi: "राज़ रखें और टुकड़े छिपा दें।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         },
         {
           id: "pre_4_b",
-          text_en: "Calmly tell your parents what happened because secrets that make you worry should always be shared.",
-          text_hi: "शांति से अपने माता-पिता को पूरी बात बताएं, क्योंकि जो रहस्य आपको चिंतित करे उसे हमेशा साझा करना चाहिए।",
+          text_en: "Tell your parents calmly what happened.",
+          text_hi: "माता-पिता को शांति से सब बता दें।",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           isSafe: true
         },
         {
           id: "pre_4_c",
-          text_en: "Blame a pet or sibling so you don't get in trouble.",
-          text_hi: "किसी पालतू जानवर या भाई-बहन पर आरोप लगा दें।",
+          text_en: "Blame the pet or your sibling.",
+          text_hi: "पालतू जानवर या भाई-बहन पर इल्ज़ाम लगा दें।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         }
@@ -502,8 +516,8 @@ const GAURI_DATA = {
       choices: [
         {
           id: "l1_c1",
-          text_en: "Go with the adult and get into the car.",
-          text_hi: "व्यक्ति के साथ जाएँ और कार में बैठ जाएँ।",
+          text_en: "Get into the car.",
+          text_hi: "कार में बैठ जाएँ।",
           rating: "unsafe",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           guidanceTitle_en: "Let's Pause and Think 🌱",
@@ -514,8 +528,8 @@ const GAURI_DATA = {
         },
         {
           id: "l1_c2",
-          text_en: "Say 'I have to check with my teacher first' and walk back toward school, away from the car.",
-          text_hi: "'पहले मुझे अपने शिक्षक से पूछना है' कहें और गाड़ी से दूर, स्कूल की ओर वापस चलें।",
+          text_en: "Say 'I must ask my teacher first' and walk back to school.",
+          text_hi: "कहें 'पहले टीचर से पूछना है' और स्कूल लौट जाएँ।",
           rating: "safe",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           guidanceTitle_en: "Excellent Critical Thinking! ⭐",
@@ -526,8 +540,8 @@ const GAURI_DATA = {
         },
         {
           id: "l1_c3",
-          text_en: "Say 'No thank you, I will wait inside with my teacher' and walk into school.",
-          text_hi: "'नहीं शुक्रिया, मैं अंदर शिक्षक के साथ इंतज़ार करूँगा' कहें और स्कूल के अंदर चले जाएँ।",
+          text_en: "Say 'No thank you' and wait inside with your teacher.",
+          text_hi: "'नहीं, धन्यवाद' कहें और टीचर के साथ अंदर रुकें।",
           rating: "safe",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           guidanceTitle_en: "Super Boundary Setting! 🛡️",
@@ -538,8 +552,8 @@ const GAURI_DATA = {
         },
         {
           id: "l1_c4",
-          text_en: "Run alone through an empty back-alley to escape.",
-          text_hi: "बचने के लिए अकेले किसी सुनसान पीछे वाली गली से भागें।",
+          text_en: "Run alone down an empty back lane.",
+          text_hi: "सुनसान पिछली गली में अकेले भाग जाएँ।",
           rating: "partial",
           skills: { risk_recognition: 1, verification: 0, help_seeking: 0, boundary_setting: 1, impulse_control: 0, problem_solving: 0 },
           guidanceTitle_en: "Let's Reflect on Where to Go 🌱",
@@ -578,8 +592,8 @@ const GAURI_DATA = {
       choices: [
         {
           id: "l2_c1",
-          text_en: "Send your school badge photo to show them your uniform.",
-          text_hi: "उन्हें अपने स्कूल बैज की फोटो भेज दें।",
+          text_en: "Send your school badge photo.",
+          text_hi: "स्कूल बैज की फ़ोटो भेज दें।",
           rating: "unsafe",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           guidanceTitle_en: "Protect Your Digital Identity 🌱",
@@ -590,8 +604,8 @@ const GAURI_DATA = {
         },
         {
           id: "l2_c2",
-          text_en: "Politely say: 'I don't share real-life details in games' and keep playing safely.",
-          text_hi: "'मैं गेम में निजी जानकारी साझा नहीं करता' कहें और सुरक्षित खेलें।",
+          text_en: "Say 'I don't share real-life details' and keep playing.",
+          text_hi: "कहें 'मैं असली जानकारी नहीं देता' और खेलते रहें।",
           rating: "safe",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           guidanceTitle_en: "Awesome Boundary Setting! ⭐",
@@ -602,8 +616,8 @@ const GAURI_DATA = {
         },
         {
           id: "l2_c3",
-          text_en: "Block the user and show the messages to your parents right away.",
-          text_hi: "यूजर को ब्लॉक करें और तुरंत अपने माता-पिता को संदेश दिखाएं।",
+          text_en: "Block them and show your parents.",
+          text_hi: "उसे ब्लॉक करें और माता-पिता को दिखाएँ।",
           rating: "safe",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           guidanceTitle_en: "Proactive Digital Defense! 🛡️",
@@ -642,8 +656,8 @@ const GAURI_DATA = {
       choices: [
         {
           id: "l3_c1",
-          text_en: "Walk out into the street to try walking home alone.",
-          text_hi: "अकेले घर जाने के लिए मॉल से बाहर सड़क पर चले जाएँ।",
+          text_en: "Walk out to the street and head home alone.",
+          text_hi: "बाहर सड़क पर अकेले घर की ओर चल दें।",
           rating: "unsafe",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           guidanceTitle_en: "Freeze in Place! 🌱",
@@ -654,8 +668,8 @@ const GAURI_DATA = {
         },
         {
           id: "l3_c2",
-          text_en: "Approach the cashier counter and ask them to make an announcement.",
-          text_hi: "कैशियर काउंटर पर जाएँ और स्पीकर पर घोषणा (अनाउंसमेंट) करने को कहें।",
+          text_en: "Ask the cashier to make an announcement.",
+          text_hi: "कैशियर से घोषणा करने को कहें।",
           rating: "safe",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           guidanceTitle_en: "Smart Public Navigation! ⭐",
@@ -666,8 +680,8 @@ const GAURI_DATA = {
         },
         {
           id: "l3_c3",
-          text_en: "Stay near the toy display and wait calmly for parents to retrace their steps.",
-          text_hi: "खिलौनों के पास ही शांत खड़े रहें ताकि माता-पिता वापस आकर आपको पा सकें।",
+          text_en: "Stay by the toys and wait calmly for your parents.",
+          text_hi: "खिलौनों के पास शांति से माता-पिता का इंतज़ार करें।",
           rating: "safe",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           guidanceTitle_en: "Calm & Composed! 🛡️",
@@ -706,8 +720,8 @@ const GAURI_DATA = {
       choices: [
         {
           id: "l4_c1",
-          text_en: "Accept the phone and promise never to tell your parents.",
-          text_hi: "फोन ले लें और माता-पिता को कभी न बताने का वादा करें।",
+          text_en: "Take the phone and promise to keep it secret.",
+          text_hi: "फ़ोन ले लें और राज़ रखने का वादा करें।",
           rating: "unsafe",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           guidanceTitle_en: "Secrets vs. Surprises 🌱",
@@ -718,8 +732,8 @@ const GAURI_DATA = {
         },
         {
           id: "l4_c2",
-          text_en: "Say: 'I don't keep secrets from my parents' and hand it back.",
-          text_hi: "'मैं अपने माता-पिता से कोई बात नहीं छिपाता' कहें और वापस कर दें।",
+          text_en: "Say 'I don't keep secrets from my parents' and give it back.",
+          text_hi: "कहें 'मैं माता-पिता से राज़ नहीं छिपाता' और फ़ोन लौटा दें।",
           rating: "safe",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           guidanceTitle_en: "Super Boundary Champion! ⭐",
@@ -730,8 +744,8 @@ const GAURI_DATA = {
         },
         {
           id: "l4_c3",
-          text_en: "Go straight to your parents and tell them exactly what the adult said.",
-          text_hi: "सीधे अपने माता-पिता के पास जाएँ और बताएं कि उस व्यक्ति ने क्या कहा।",
+          text_en: "Go straight to your parents and tell them.",
+          text_hi: "सीधे माता-पिता के पास जाकर बताएँ।",
           rating: "safe",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           guidanceTitle_en: "Perfect Open Communication! 🛡️",
@@ -742,8 +756,8 @@ const GAURI_DATA = {
         },
         {
           id: "l4_c4",
-          text_en: "Hide the phone under your pillow and feel nervous all night.",
-          text_hi: "फोन को तकिए के नीचे छिपा लें और रात भर घबराते रहें।",
+          text_en: "Hide the phone and worry alone.",
+          text_hi: "फ़ोन छिपा लें और अकेले घबराते रहें।",
           rating: "unsafe",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           guidanceTitle_en: "Listen to Your 'Tummy Feelings' 🌱",
@@ -769,22 +783,22 @@ const GAURI_DATA = {
       choices: [
         {
           id: "post_1_a",
-          text_en: "Hop on the bike because they mentioned your dad.",
-          text_hi: "बाइक पर बैठ जाएँ क्योंकि उन्होंने पिताजी का नाम लिया।",
+          text_en: "Hop on the bike, he mentioned Dad.",
+          text_hi: "बाइक पर बैठ जाएँ, उसने पापा का नाम लिया।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         },
         {
           id: "post_1_b",
-          text_en: "Step back into the sports reception desk, ask the coach to call Dad, and verify with your family safe-word.",
-          text_hi: "स्पोर्ट्स रिसेप्शन पर वापस जाएँ, कोच से पिताजी को फोन करने को कहें और पारिवारिक सुरक्षित शब्द से पुष्टि करें।",
+          text_en: "Go back inside and ask the coach to call Dad.",
+          text_hi: "अंदर लौटें और कोच से पापा को फ़ोन करवाएँ।",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           isSafe: true
         },
         {
           id: "post_1_c",
-          text_en: "Take the bike helmet and start walking down the dark road.",
-          text_hi: "हेलमेट ले लें और अंधेरी सड़क पर अकेले चलने लगें।",
+          text_en: "Take the helmet and walk down the dark road.",
+          text_hi: "हेलमेट लेकर अंधेरी सड़क पर चल दें।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         }
@@ -801,22 +815,22 @@ const GAURI_DATA = {
       choices: [
         {
           id: "post_2_a",
-          text_en: "Give your home address to get the rare pet.",
-          text_hi: "दुर्लभ उपहार पाने के लिए अपने घर का पता दे दें।",
+          text_en: "Give your home address for the rare pet.",
+          text_hi: "दुर्लभ पेट के लिए घर का पता दे दें।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         },
         {
           id: "post_2_b",
-          text_en: "Recognize that requests for home addresses or private video calls are red flags; report the user and tell parents.",
-          text_hi: "समझें कि घर का पता या वीडियो कॉल मांगना खतरे का संकेत है; यूजर की रिपोर्ट करें और माता-पिता को बताएं।",
+          text_en: "Give nothing. Report them and tell your parents.",
+          text_hi: "कुछ न दें। रिपोर्ट करें और माता-पिता को बताएँ।",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           isSafe: true
         },
         {
           id: "post_2_c",
-          text_en: "Give your neighbor's address instead.",
-          text_hi: "अपने पड़ोसी का पता दे दें।",
+          text_en: "Give your neighbour's address instead.",
+          text_hi: "पड़ोसी का पता दे दें।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         }
@@ -833,22 +847,22 @@ const GAURI_DATA = {
       choices: [
         {
           id: "post_3_a",
-          text_en: "Jump onto an open train carriage to look inside.",
-          text_hi: "अंदर देखने के लिए किसी खुली ट्रेन के डिब्बे में चढ़ जाएँ।",
+          text_en: "Jump onto a train to look inside.",
+          text_hi: "अंदर देखने के लिए ट्रेन में चढ़ जाएँ।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         },
         {
           id: "post_3_b",
-          text_en: "Stay safely on the platform away from the tracks, approach an on-duty station master / police officer in uniform, and give your parent's phone number.",
-          text_hi: "पटरियों से दूर प्लेटफॉर्म पर सुरक्षित खड़े रहें, वर्दी वाले स्टेशन मास्टर/पुलिसकर्मी के पास जाएँ और माता-पिता का फोन नंबर बताएं।",
+          text_en: "Stay on the platform and ask a uniformed officer for help.",
+          text_hi: "प्लेटफ़ॉर्म पर रुकें और वर्दी वाले अधिकारी से मदद माँगें।",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           isSafe: true
         },
         {
           id: "post_3_c",
-          text_en: "Walk out of the station into the unfamiliar city streets.",
-          text_hi: "स्टेशन से बाहर अनजान शहर की सड़कों पर निकल जाएँ।",
+          text_en: "Walk out into the city streets.",
+          text_hi: "स्टेशन से बाहर शहर की सड़कों पर निकल जाएँ।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         }
@@ -865,22 +879,22 @@ const GAURI_DATA = {
       choices: [
         {
           id: "post_4_a",
-          text_en: "Agree to the private photos and keep the secret.",
-          text_hi: "तस्वीरें खिंचवाने के लिए मान जाएँ और बात गुप्त रखें।",
+          text_en: "Agree to the private photos and keep it secret.",
+          text_hi: "निजी फ़ोटो के लिए मान जाएँ और राज़ रखें।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         },
         {
           id: "post_4_b",
-          text_en: "Say 'NO! My body and photos are private', step away immediately and inform your parents right away.",
-          text_hi: "'नहीं! मेरा शरीर और तस्वीरें निजी हैं' कहें, तुरंत दूर हटें और माता-पिता को पूरी बात बताएं।",
+          text_en: "Say 'NO! My body is private', step away, tell your parents.",
+          text_hi: "कहें 'नहीं! मेरा शरीर निजी है', दूर हटें, माता-पिता को बताएँ।",
           skills: { risk_recognition: 1, verification: 1, help_seeking: 1, boundary_setting: 1, impulse_control: 1, problem_solving: 1 },
           isSafe: true
         },
         {
           id: "post_4_c",
-          text_en: "Take a picture of them back and run away.",
-          text_hi: "उनकी भी तस्वीर खींच लें और भाग जाएँ।",
+          text_en: "Take a photo of them and run.",
+          text_hi: "उनकी फ़ोटो खींचकर भाग जाएँ।",
           skills: { risk_recognition: 0, verification: 0, help_seeking: 0, boundary_setting: 0, impulse_control: 0, problem_solving: 0 },
           isSafe: false
         }
